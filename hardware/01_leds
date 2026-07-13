@@ -379,7 +379,7 @@ zbtlink,zbt-z8106ax-t)
 	ucidef_set_led_netdev "wan" "wan" "amber:wan" "eth1" "link tx rx"
 	ucidef_set_led_netdev "mobile" "mobile" "green:mobile" "wwan" "link tx rx"
 	;;
-zhao,7981R128)
+Zhao,7981R128)
 	ucidef_set_led_netdev "lan" "LAN" "LAN" "lan2"
 	ucidef_set_led_netdev "sfp" "SFP" "SFP" "eth1"
 	ucidef_set_led_netdev "wlan2g" "WIFI2G" "WIFI2G" "ra0"
