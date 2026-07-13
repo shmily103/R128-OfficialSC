@@ -275,13 +275,13 @@ define Device/xiaomi_redmi-router-ax6000-mtkuboot
 endef
 TARGET_DEVICES += xiaomi_redmi-router-ax6000-mtkuboot
 
-define Device/zhao_7981r128-mtkuboot
+define Device/Zhao_7981R128
   DEVICE_VENDOR := ZHAO
-  DEVICE_MODEL := 7981r128
+  DEVICE_MODEL := 7981R128
   DEVICE_VARIANT := (MTK U-Boot layout)
-  DEVICE_DTS := mt7981b-zhao-7981r128-mtkuboot
-  DEVICE_DTS_DIR := ../dts-ext
-  SUPPORTED_DEVICES := zhao,7981r128
+  DEVICE_DTS := mt7981b-Zhao-7981R128-mtkuboot
+  DEVICE_DTS_DIR := ../dts
+  SUPPORTED_DEVICES := Zhao,7981R128
   DEVICE_PACKAGES := kmod-usb3 kmod-sfp kmod-i2c-gpio automount f2fsck mkf2fs
   UBINIZE_OPTS := -E 5
   BLOCKSIZE := 128k
@@ -292,4 +292,4 @@ define Device/zhao_7981r128-mtkuboot
   IMAGE/factory.bin := append-ubi | check-size $$$$(IMAGE_SIZE)
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
 endef
-TARGET_DEVICES += zhao_7981r128-mtkuboot
+TARGET_DEVICES += Zhao_7981R128
