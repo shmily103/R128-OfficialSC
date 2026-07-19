@@ -1,7 +1,0 @@
-package/boot/uboot-tools/uboot-envtools/files/mediatek_filogic
-package/mtk/applications/mtk-smp/files/smp.sh
-target/linux/mediatek/dts-ext/mt7981b-zhao-7981r128-mtkuboot.dts
-target/linux/mediatek/filogic/base-files/etc/board.d/01_leds
-target/linux/mediatek/filogic/base-files/etc/board.d/02_network
-target/linux/mediatek/filogic/base-files/lib/upgrade/platform.sh
-target/linux/mediatek/image/filogic.mk
