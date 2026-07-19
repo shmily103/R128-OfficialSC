@@ -1,0 +1,23 @@
+git clone https://git.openwrt.org/openwrt/openwrt.git -b v25.12.5
+cd openwrt
+git clone https://github.com/shmily103/R128-OfficialSC.git
+mkdir package/Panzy && cd package/Panzy
+git clone --filter=blob:none --sparse --branch 25.12 https://github.com/chasey-dev/immortalwrt-mt798x-rebase.git mtk && cd mtk && git sparse-checkout set package/mtk && cp -r package/mtk ..
+git sparse-checkout set target/linux/mediatek/files-6.12 && cd ..
+git clone --filter=blob:none --sparse --branch master https://github.com/vernesong/OpenClash.git luci-app-openclash && cd luci-app-openclash && git sparse-checkout set luci-app-openclash && cd ..
+git clone --filter=blob:none --sparse --branch master https://github.com/lisaac/luci-app-diskman.git luci-app-diskman && cd luci-app-diskman && git sparse-checkout set applications/luci-app-diskman && cd ..
+cd .. && cd ..
+cp -r --update=none package/Panzy/mtk/target/linux/mediatek/files-6.12 target/linux/mediatek && rm -rf package/Panzy/mtk/target
+cp -r --update=none R128-OfficialSC/patches-6.12 target/linux/mediatek
+cp -r R128-OfficialSC/path/01_leds target/linux/mediatek/filogic/base-files/etc/board.d
+cp -r R128-OfficialSC/path/02_network target/linux/mediatek/filogic/base-files/etc/board.d
+cp -r R128-OfficialSC/path/mediatek_filogic package/boot/uboot-tools/uboot-envtools/files
+cp -r R128-OfficialSC/path/mt7981b-Zhao-7981R128-mtkuboot.dts target/linux/mediatek/dts
+cp -r R128-OfficialSC/path/filogic.mk target/linux/mediatek/image
+cp -r R128-OfficialSC/path/platform.sh target/linux/mediatek/filogic/base-files/lib/upgrade
+cp -r R128-OfficialSC/path/smp.sh package/Panzy/mtk/applications/mtk-smp/files
+./scripts/feeds update -a
+./scripts/feeds install -a
+make menuconfig
+make download -j$(nproc)
+make V=s -j$(nproc)
