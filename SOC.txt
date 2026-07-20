@@ -19,5 +19,6 @@ cp -r R128-OfficialSC/path/smp.sh package/Panzy/mtk/applications/mtk-smp/files
 ./scripts/feeds update -a
 ./scripts/feeds install -a
 make menuconfig
+make defconfig
 make download -j$(nproc)
 make V=s -j$(nproc)
