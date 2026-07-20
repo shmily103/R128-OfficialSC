@@ -13,19 +13,21 @@ diff --git a/drivers/net/ethernet/mediatek/Kconfig b/drivers/net/ethernet/mediat
 index d974316..1589b36 100644
 --- a/drivers/net/ethernet/mediatek/Kconfig
 +++ b/drivers/net/ethernet/mediatek/Kconfig
-@@ -40,4 +40,28 @@ config NET_MEDIATEK_STAR_EMAC
+@@ -40,4 +40,31 @@ config NET_MEDIATEK_STAR_EMAC
  	  This driver supports the ethernet MAC IP first used on
  	  MediaTek MT85** SoCs.
  
 +config MEDIATEK_NETSYS_V2
 +	tristate "MediaTek Ethernet NETSYS V2 support"
 +	depends on ARCH_MEDIATEK && NET_MEDIATEK_SOC
++	default y
 +	help
 +	  This options enable MTK Ethernet NETSYS V2 support
 +
 +config MEDIATEK_NETSYS_V3
 +	tristate "MediaTek Ethernet NETSYS V3 support"
 +	depends on ARCH_MEDIATEK && NET_MEDIATEK_SOC
++	default y
 +	help
 +	  This options enable MTK Ethernet NETSYS V3 support for
 +	  XGMAC and USXGMII.
@@ -36,6 +38,7 @@ index d974316..1589b36 100644
 +config NET_MEDIATEK_HNAT
 +	tristate "MediaTek HW NAT support"
 +	depends on NET_MEDIATEK_SOC && NF_CONNTRACK && NF_NAT
++	default y
 +	help
 +	  This driver supports the hardward Network Address Translation
 +	  in the MediaTek MT7988/MT7986/MT2701/MT7622/MT7629/MT7621 chipset
