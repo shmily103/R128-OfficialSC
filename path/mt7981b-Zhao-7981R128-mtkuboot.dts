@@ -75,10 +75,9 @@
 		};
 	};
 
+	/* 修正：移除 pinctrl 属性，避免软件模拟 I2C 冲突抢占硬件 Pin 6/Pin 7 */
 	i2c_sfp1: i2c-gpio-0 {
 		compatible = "i2c-gpio";
-		pinctrl-names = "default";
-		pinctrl-0 = <&i2c_sfp_pins>;
 		sda-gpios = <&pio 9 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
 		scl-gpios = <&pio 10 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
 		i2c-gpio,delay-us = <2>;
@@ -295,15 +294,7 @@
 		};
 	};
 
-	/* 修正 1：主线规范的 group 名称必须为 "i2c0_0" */
-	i2c_sfp_pins: i2c-sfp-pins {
-		mux {
-			function = "i2c";
-			groups = "i2c0_0";
-		};
-	};
-
-	/* 修正 2：使用符合 MT7981 主线驱动规范的 PUPD 参数，防止配置解析中断 */
+	/* 修正：精简 pinctrl，只保留标准 SFP 接口引脚 */
 	sfp_pins: sfp-pins {
 		conf {
 			pins = "SPI1_CLK", "SPI1_MOSI", "SPI1_MISO", "SPI1_CS";
