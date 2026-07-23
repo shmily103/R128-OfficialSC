@@ -3673,7 +3673,10 @@ define Device/Zhao_7981R128
   DEVICE_DTS := mt7981b-Zhao-7981R128-mtkuboot
   DEVICE_DTS_DIR := ../dts
   SUPPORTED_DEVICES := Zhao,7981R128
-  DEVICE_PACKAGES := kmod-usb3 kmod-sfp kmod-i2c-gpio automount f2fsck mkf2fs
+  DEVICE_PACKAGES := kmod-usb3 kmod-sfp kmod-i2c-gpio automount f2fsck mkf2fs \
+  		     kmod-usb2 kmod-usb-storage-extras badblocks kmod-fs-ext4 kmod-fs-vfat kmod-nls-utf8
+  DEVICE_PACKAGES := kmod-mt7915e kmod-mt7981-firmware mt7981-wo-firmware \
+                     kmod-sfp kmod-i2c-gpio wpad-basic-mbedtls kmod-bonding kmod-vrf
   UBINIZE_OPTS := -E 5
   BLOCKSIZE := 128k
   PAGESIZE := 2048
