@@ -1,3 +1,7 @@
+#!/bin/bash
+# SPDX-License-Identifier: MIT
+# Copyright (C) 2026 VIKINGYFY
+
 git clone https://github.com/shmily103/R128-OfficialSC.git
 mkdir package/Panzy && cd package/Panzy
 git clone --filter=blob:none --sparse --branch master https://github.com/vernesong/OpenClash.git luci-app-openclash && cd luci-app-openclash && git sparse-checkout set luci-app-openclash && cd ..
