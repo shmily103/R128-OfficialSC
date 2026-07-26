@@ -186,6 +186,7 @@ jobs:
           fi
 
           $GITHUB_WORKSPACE/Scripts/Settings.sh
+          $GITHUB_WORKSPACE/Scripts/R128-OfficialSC.sh
 
           make defconfig -j$(nproc) && make clean -j$(nproc)
 
