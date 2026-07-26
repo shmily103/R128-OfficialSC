@@ -60,7 +60,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        CONFIG: [MT7981]
+        CONFIG: [R128-OfficialSC]
         REPO_INFO:
           - {SOURCE: "openwrt/openwrt", BRANCH: "v25.12.5"}
 
