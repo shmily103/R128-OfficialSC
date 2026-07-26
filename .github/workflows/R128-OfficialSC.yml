@@ -109,16 +109,12 @@ jobs:
 
           cd ./wrt/ && echo "WRT_HASH=$(git log -1 --pretty=format:'%h')" >> $GITHUB_ENV
 
+          $GITHUB_WORKSPACE/Scripts/R128-OfficialSC.sh
+
           # 如果不存在 defconfig 则直接结束工作流
           if [ ! -d "defconfig" ]; then
             echo "defconfig directory not found, stopping workflow."
             exit 0
-          fi
-
-          # GitHub Action 移除国内下载源
-          PROJECT_MIRRORS_FILE="./scripts/projectsmirrors.json"
-          if [ -f "$PROJECT_MIRRORS_FILE" ]; then
-            sed -i '/.cn\//d; /tencent/d; /aliyun/d' "$PROJECT_MIRRORS_FILE"
           fi
 
       - name: Check Scripts
@@ -186,7 +182,6 @@ jobs:
           fi
 
           $GITHUB_WORKSPACE/Scripts/Settings.sh
-          $GITHUB_WORKSPACE/Scripts/R128-OfficialSC.sh
 
           make defconfig -j$(nproc) && make clean -j$(nproc)
 
