@@ -2,7 +2,7 @@
 # Copyright (C) 2026 VIKINGYFY
 
 # CI 项目
-name: CWRT-ALL
+name: R128
 
 # CI 触发条件
 on:
@@ -245,11 +245,7 @@ jobs:
           tag_name: ${{ env.WRT_CONFIG }}-${{ env.WRT_INFO }}-${{ env.WRT_BRANCH }}-${{ env.WRT_DATE }}
           files: ./wrt/upload/*.*
           body: |
-            这是个平台固件包，内含多个设备！
-            请注意选择你需要的设备固件！
-            不要问，刷就完事了！
-
-            全系带闭源硬件加速，别问了！
+            赵老板开发的设备R128，完全官方源码，！
 
             源码：${{ env.WRT_REPO }}
             分支：${{ env.WRT_BRANCH }}
