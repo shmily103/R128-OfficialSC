@@ -2,7 +2,7 @@
 # Copyright (C) 2026 VIKINGYFY
 
 # CI 项目
-name: R128
+name: R128-OfficialSC
 
 # CI 触发条件
 on:
