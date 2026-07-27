@@ -3676,9 +3676,9 @@ define Device/Zhao_7981R128
 DEVICE_PACKAGES := \
 		kmod-mt7915e kmod-mt7981-firmware mt7981-wo-firmware \
 		-wpad-basic-mbedtls wpad-mesh-mbedtls \
-		kmod-usb2 kmod-usb3 kmod-usb-storage-extras \
+		kmod-ata-ahci \
 		kmod-fs-ext4 kmod-fs-vfat kmod-nls-utf8 f2fsck mkf2fs \
-		block-mount automount fdisk badblocks usbutils \
+		block-mount automount fdisk badblocks \
 		kmod-sfp kmod-i2c-gpio \
 		-dnsmasq dnsmasq-full kmod-bonding kmod-vrf
   UBINIZE_OPTS := -E 5
