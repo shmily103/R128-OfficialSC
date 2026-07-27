@@ -140,7 +140,7 @@ jobs:
           cd ./wrt/ && echo "WRT_HASH=$(git log -1 --pretty=format:'%h')" >> $GITHUB_ENV
 
           # 运行项目根目录针对 R128 设备准备的专有处理脚本
-          $GITHUB_WORKSPACE/Scripts/R128-OfficialSC.sh
+          bash $GITHUB_WORKSPACE/Scripts/R128-OfficialSC.sh
 
           # 校验：如果脚本运行后未产生 defconfig 目录，说明配置有误，直接中断退出
           if [ ! -d "defconfig" ]; then
