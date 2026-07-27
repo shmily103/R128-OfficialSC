@@ -139,9 +139,6 @@ jobs:
           # 进入目录并抓取最新的 Git Commit Hash (短哈希) 保存到环境变量
           cd ./wrt/ && echo "WRT_HASH=$(git log -1 --pretty=format:'%h')" >> $GITHUB_ENV
 
-          # 运行项目根目录针对 R128 设备准备的专有处理脚本
-          bash $GITHUB_WORKSPACE/Scripts/R128-OfficialSC.sh
-
           # 校验：如果脚本运行后未产生 defconfig 目录，说明配置有误，直接中断退出
           if [ ! -d "defconfig" ]; then
             echo "defconfig directory not found, stopping workflow."
@@ -223,6 +220,9 @@ jobs:
 
           # 执行用户自定义配置修改脚本
           $GITHUB_WORKSPACE/Scripts/Settings.sh
+
+          # 运行项目根目录针对 R128 设备准备的专有处理脚本
+          bash $GITHUB_WORKSPACE/Scripts/R128-OfficialSC.sh
 
           # 展开依赖配置并清理无用文件
           make defconfig -j$(nproc) && make clean -j$(nproc)
