@@ -1,69 +1,82 @@
 # SPDX-License-Identifier: MIT
 # Copyright (C) 2026 VIKINGYFY
 
-# CI 项目
+# CI 项目名称：在 GitHub Actions 页面显示的名称
 name: R128-OfficialSC
 
-# CI 触发条件
+# CI 触发条件配置
 on:
-  # 自动编译：每周一早上 5 点 (UTC 21:00 Sunday)
+  # 1. 定时自动编译 (Cron 表达式)
   schedule:
+    # 格式为: 分 时 日 月 星期
+    # 0 21 * * 0 表示每周日 UTC 21:00 (即北京时间每周一早上 05:00) 自动触发
     - cron: 0 21 * * 0
-  # 手动触发
+
+  # 2. 手动触发 (在 GitHub UI 界面手动点击运行)
   workflow_dispatch:
     inputs:
+      # 手动输入的插件包名称/列表参数
       PACKAGE:
         description: '手动调整插件包，多个请用\n符号隔开。'
         required: false
         type: string
+      # 是否仅测试配置的开关（默认为 false）
       TEST:
         description: '仅输出配置文件，不编译固件。'
         default: 'false'
         required: false
         type: boolean
 
+# 全局环境变量，所有 Job 和 Step 均可访问
 env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  # 统一配置参数
-  WRT_THEME: material
-  WRT_NAME: Panzy
-  WRT_SSID: Panzy
-  WRT_WORD: 12345678
-  WRT_IP: 192.168.6.1
-  WRT_PW: 无
-  WRT_PACKAGE: ${{ inputs.PACKAGE }}
-  WRT_TEST: ${{ inputs.TEST }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # 自动调用的 GitHub API 密钥
+  # 统一自定义配置参数 (路由器默认参数)
+  WRT_THEME: material                      # 默认 LucI 主题
+  WRT_NAME: Panzy                          # 主机名
+  WRT_SSID: Panzy                          # 默认 Wi-Fi 名称
+  WRT_WORD: 12345678                       # 默认 Wi-Fi 密码
+  WRT_IP: 192.168.6.1                      # 默认后台登录 IP
+  WRT_PW: 无                               # 默认后台登录密码
+  WRT_PACKAGE: ${{ inputs.PACKAGE }}       # 接收手动输入的插件包
+  WRT_TEST: ${{ inputs.TEST }}             # 接收手动输入的测试标记
 
-# CI 权限设置
+# CI 权限设置：给予工作流写权限（用于发布 Release 和删改标签等操作）
 permissions: write-all
 
 jobs:
-  # 1. 清理旧 Release 及 Workflow 记录
+  # =========================================================================
+  # 任务 1: 清理旧 Release 和历史的工作流运行记录
+  # =========================================================================
   cleanup:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # 使用最新的 Ubuntu runner 执行
     steps:
       - name: Delete old Releases and Workflows
         uses: ophub/delete-releases-workflows@main
         with:
           gh_token: ${{ secrets.GITHUB_TOKEN }}
-          delete_releases: true
-          releases_keep_latest: 0
-          delete_tags: true
-          delete_workflows: true
-          workflows_keep_day: 0
+          delete_releases: true       # 删除之前的所有 Release
+          releases_keep_latest: 0     # 保留最新的 Release 数量（0 表示全删）
+          delete_tags: true           # 删掉旧 Release 对应的 Git 标签
+          delete_workflows: true      # 清理旧的工作流运行历史记录
+          workflows_keep_day: 0       # 保留工作流天数（0 表示全删）
 
-  # 2. 固件编译核心任务
+  # =========================================================================
+  # 任务 2: 固件编译核心任务
+  # =========================================================================
   build:
-    needs: cleanup
-    name: ${{ matrix.CONFIG }} (${{ matrix.REPO_INFO.SOURCE }})
+    needs: cleanup # 必须在 cleanup 任务成功完成后才开始执行
+    name: ${{ matrix.CONFIG }} (${{ matrix.REPO_INFO.SOURCE }}) # 动态命名任务显示名称
     runs-on: ubuntu-latest
+    
+    # 矩阵策略：可以同时或组合多组参数进行并行编译
     strategy:
-      fail-fast: false
+      fail-fast: false # 即使某一个矩阵任务失败，也不要取消其他矩阵任务
       matrix:
-        CONFIG: [R128-OfficialSC]
+        CONFIG: [R128-OfficialSC] # 目标配置文件名
         REPO_INFO:
-          - {SOURCE: "openwrt/openwrt", BRANCH: "v25.12.5"}
+          - {SOURCE: "openwrt/openwrt", BRANCH: "v25.12.5"} # 源码仓库及目标分支
 
+    # 局部环境变量：从矩阵策略中动态注入
     env:
       WRT_CONFIG: ${{ matrix.CONFIG }}
       WRT_SOURCE: ${{ matrix.REPO_INFO.SOURCE }}
@@ -71,59 +84,79 @@ jobs:
       WRT_REPO: https://git.openwrt.org/${{ matrix.REPO_INFO.SOURCE }}.git
 
     steps:
+      # Step 1: 拉取本仓库（包含自定义脚本和配置文件）的代码
       - name: Checkout Projects
         uses: actions/checkout@main
 
+      # Step 2: 编译环境初始化（清理垃圾软件、升级软件源、安装依赖、设置时区等）
       - name: Initialization Environment
         env:
-          DEBIAN_FRONTEND: noninteractive
+          DEBIAN_FRONTEND: noninteractive # 预设静默安装模式，防止弹框等待交互
         run: |
+          # 卸载占用空间且不必要的软件 (如火狐)
           sudo -E apt -yqq purge firefox
+          # 更新并升级软件包
           sudo -E apt -yqq update
           sudo -E apt -yqq full-upgrade
           sudo -E apt -yqq autoremove --purge
           sudo -E apt -yqq autoclean
           sudo -E apt -yqq clean
+          # 安装编译所需的转换工具和文件系统依赖
           sudo -E apt -yqq install dos2unix libfuse-dev
+          # 调用外部脚本初始化 OpenWrt 编译基础环境依赖
           sudo bash -c 'bash <(curl -sL https://build-scripts.immortalwrt.org/init_build_environment.sh)'
+          # 刷新守护进程并修改系统时区为上海时间
           sudo -E systemctl daemon-reload
           sudo -E timedatectl set-timezone "Asia/Shanghai"
 
+          # 创建单独的构建目录并将其软链接到工作空间（挂载点空间往往更大）
           sudo mkdir -p /mnt/build_wrt
           sudo chown $USER:$USER /mnt/build_wrt
           sudo ln -s /mnt/build_wrt $GITHUB_WORKSPACE/wrt
 
+      # Step 3: 初始化各类环境变量（时间戳、构建目标架构等）并写入 $GITHUB_ENV
       - name: Initialization Values
         run: |
+          # 设置当前编译时间字符串
           echo "WRT_DATE=$(TZ=UTC-8 date +"%y.%m.%d-%H.%M.%S")" >> $GITHUB_ENV
+          # 获取当前 Github 仓库拥有者名称
           echo "WRT_MARK=${GITHUB_REPOSITORY%%/*}" >> $GITHUB_ENV
+          # 获取源码来源标识 (如 openwrt)
           echo "WRT_INFO=${WRT_SOURCE%%/*}" >> $GITHUB_ENV
+          # 从配置文本中通过正则解析获取目标 CPU 架构 (CONFIG_TARGET_xxx)
           echo "WRT_TARGET=$(grep -m 1 -oP '^CONFIG_TARGET_\K[\w]+(?=\=y)' ./Config/$WRT_CONFIG.txt)" >> $GITHUB_ENV
+          # 初始化默认属性
           echo "WRT_WIFI=wifi-yes" >> $GITHUB_ENV
           echo "WRT_KVER=none" >> $GITHUB_ENV
           echo "WRT_LIST=none" >> $GITHUB_ENV
 
+      # Step 4: 克隆 OpenWrt 源码，并执行设备专有预处理脚本
       - name: Clone Code
         run: |
+          # 浅克隆指定分支的 OpenWrt 源码到 ./wrt/ 目录
           git clone --depth=1 --single-branch --branch $WRT_BRANCH $WRT_REPO ./wrt/
 
+          # 进入目录并抓取最新的 Git Commit Hash (短哈希) 保存到环境变量
           cd ./wrt/ && echo "WRT_HASH=$(git log -1 --pretty=format:'%h')" >> $GITHUB_ENV
 
+          # 运行项目根目录针对 R128 设备准备的专有处理脚本
           $GITHUB_WORKSPACE/Scripts/R128-OfficialSC.sh
 
-          # 如果不存在 defconfig 则直接结束工作流
+          # 校验：如果脚本运行后未产生 defconfig 目录，说明配置有误，直接中断退出
           if [ ! -d "defconfig" ]; then
             echo "defconfig directory not found, stopping workflow."
             exit 0
           fi
 
+      # Step 5: 规范化脚本编码与权限（防止 Windows 换行符 CRLF 导致 Linux 脚本无法执行）
       - name: Check Scripts
         run: |
           find ./ -maxdepth 3 -type f -iregex ".*\(txt\|sh\)$" -exec dos2unix {} \; -exec chmod +x {} \;
 
+      # Step 6: 检查并恢复 GitHub Actions 编译缓存（用于加速构建工具链等）
       - name: Check Caches
         id: check-cache
-        if: env.WRT_TEST != 'true'
+        if: env.WRT_TEST != 'true' # 非测试模式下才开启缓存
         uses: actions/cache@main
         with:
           key: ${{ env.WRT_CONFIG }}-${{ env.WRT_INFO }}-${{ env.WRT_HASH }}
@@ -133,10 +166,12 @@ jobs:
             ./wrt/staging_dir/host*
             ./wrt/staging_dir/tool*
 
+      # Step 7: 更新和清理缓存，提高下次构建效率
       - name: Update Caches
         if: env.WRT_TEST != 'true'
         run: |
           if [ -d "./wrt/staging_dir" ]; then
+            # 刷新 stamp 时间戳文件，防止缓存过期逻辑导致重编译
             find "./wrt/staging_dir" -type d -name "stamp" -not -path "*target*" | while read -r DIR; do
               find "$DIR" -type f -exec touch {} +
             done
@@ -148,6 +183,7 @@ jobs:
             echo "caches missed!"
           fi
 
+          # 如果未完全命中缓存，清理旧的远程 Cache Key 释放存储空间
           if ${{ steps.check-cache.outputs.cache-hit != 'true' }}; then
             CACHE_LIST=$(gh cache list --key "$WRT_CONFIG-$WRT_INFO" | cut -f 1)
             for CACHE_KEY in $CACHE_LIST; do
@@ -157,6 +193,7 @@ jobs:
             echo "caches cleanup done!"
           fi
 
+      # Step 8: 更新并安装 OpenWrt 软件源（Feeds）
       - name: Update Feeds
         run: |
           cd ./wrt/
@@ -164,6 +201,7 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
+      # Step 9: 注入自定义插件包（当前脚本被注释掉了）
       - name: Custom Packages
         run: |
           cd ./wrt/package/
@@ -171,20 +209,25 @@ jobs:
           # $GITHUB_WORKSPACE/Scripts/Packages.sh
           # $GITHUB_WORKSPACE/Scripts/Handles.sh
 
+      # Step 10: 合并/生成 OpenWrt 的 .config 编译配置文件
       - name: Custom Settings
         run: |
           cd ./wrt/
 
+          # 根据配置名称决定是否追加通用配置
           if [[ "${WRT_CONFIG,,}" == *"test"* ]]; then
             cat $GITHUB_WORKSPACE/Config/$WRT_CONFIG.txt >> .config
           else
             cat $GITHUB_WORKSPACE/Config/$WRT_CONFIG.txt $GITHUB_WORKSPACE/Config/R128-OfficialSC.txt >> .config
           fi
 
+          # 执行用户自定义配置修改脚本
           $GITHUB_WORKSPACE/Scripts/Settings.sh
 
+          # 展开依赖配置并清理无用文件
           make defconfig -j$(nproc) && make clean -j$(nproc)
 
+      # Step 11: 预先下载所有编译所需依赖源码包 (DL 目录)
       - name: Download Packages
         if: env.WRT_TEST != 'true'
         run: |
@@ -192,6 +235,7 @@ jobs:
 
           make download -j$(nproc)
 
+      # Step 12: 开始多核并行编译固件；若失败则单核输出详细日志 (V=s) 方便排错
       - name: Compile Firmware
         if: env.WRT_TEST != 'true'
         run: |
@@ -199,6 +243,7 @@ jobs:
 
           make -j$(nproc) || make -j1 V=s
 
+      # Step 13: 打印当前 CI 机器的 CPU 和磁盘硬件信息（方便确认资源使用情况）
       - name: Machine Information
         run: |
           cd ./wrt/
@@ -211,18 +256,23 @@ jobs:
           du -h --max-depth=1
           echo "======================="
 
+      # Step 14: 整理并重命名编译产物（固件及 .config 文件）
       - name: Package Firmware
         run: |
           cd ./wrt/ && mkdir ./upload/
 
+          # 备份最终生成的配置文件到上传目录
           cp -f ./.config ./upload/Config-"$WRT_CONFIG"-"$WRT_INFO"-"$WRT_BRANCH"-"$WRT_DATE".txt
 
           if [[ $WRT_TEST != 'true' ]]; then
+            # 从生成的 manifest 清单文件中提取 内核版本 和 已安装插件列表 写入环境变量
             echo "WRT_KVER=$(find ./bin/targets/ -type f -name "*.manifest" -exec grep -oP '^kernel - \K[\d\.]+' {} \;)" >> $GITHUB_ENV
             echo "WRT_LIST=$(find ./bin/targets/ -type f -name "*.manifest" -exec grep -oP '^luci-(app|theme)[^ ]*' {} \; | tr '\n' ' ')" >> $GITHUB_ENV
 
+            # 移除非必要的中介/校验文件
             find ./bin/targets/ -iregex ".*\(buildinfo\|json\|sha256sums\|packages\)$" -exec rm -rf {} +
 
+            # 遍历并按规范重命名编译好的固件文件（包含芯片、日期、分支等信息）
             for FILE in $(find ./bin/targets/ -type f -iname "*$WRT_TARGET*") ; do
               EXT=$(basename $FILE | cut -d '.' -f 2-)
               NAME=$(basename $FILE | cut -d '.' -f 1 | grep -io "\($WRT_TARGET\).*")
@@ -230,16 +280,22 @@ jobs:
               mv -f $FILE ./upload/$NEW_FILE
             done
 
+            # 移动剩余的生成物到待上传目录
             find ./bin/targets/ -type f -exec mv -f {} ./upload/ \;
 
+            # 清理编译产生的临时构建文件
             make clean -j$(nproc)
           fi
 
+      # Step 15: 将打好的固件及配置文件打包发布至 GitHub Release
       - name: Release Firmware
         uses: softprops/action-gh-release@master
         with:
+          # 动态生成的 Release Tag 标签名
           tag_name: ${{ env.WRT_CONFIG }}-${{ env.WRT_INFO }}-${{ env.WRT_BRANCH }}-${{ env.WRT_DATE }}
+          # 需要上传到 Release 附件区域的文件列表
           files: ./wrt/upload/*.*
+          # Release 的描述信息页面模版
           body: |
             赵老板开发的设备R128，完全官方源码，！
 
