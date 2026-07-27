@@ -218,11 +218,11 @@ jobs:
             cat $GITHUB_WORKSPACE/Config/$WRT_CONFIG.txt $GITHUB_WORKSPACE/Config/R128-OfficialSC.txt >> .config
           fi
 
-          # 执行用户自定义配置修改脚本
-          $GITHUB_WORKSPACE/Scripts/Settings.sh
-
           # 运行项目根目录针对 R128 设备准备的专有处理脚本
           bash $GITHUB_WORKSPACE/Scripts/R128-OfficialSC.sh
+
+          # 执行用户自定义配置修改脚本
+          $GITHUB_WORKSPACE/Scripts/Settings.sh
 
           # 展开依赖配置并清理无用文件
           make defconfig -j$(nproc) && make clean -j$(nproc)
