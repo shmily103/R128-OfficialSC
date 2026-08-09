@@ -297,7 +297,7 @@ jobs:
           files: ./wrt/upload/*.*
           # Release 的描述信息页面模版
           body: |
-            赵老板开发的设备R128，零添加，完全官方源码！
+            赵老板开发的设备R128，零添加，完全官方源码！在Config/R128-OfficialSC.txt文件中增减定制插件。
 
             源码：${{ env.WRT_REPO }}
             分支：${{ env.WRT_BRANCH }}
