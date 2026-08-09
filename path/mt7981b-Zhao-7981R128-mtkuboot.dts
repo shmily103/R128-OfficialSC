@@ -13,6 +13,10 @@
 	aliases {
 		serial0 = &uart0;
 		label-mac-device = &gmac0;
+		led-boot = &led_status;
+		led-failsafe = &led_status;
+		led-running = &led_status;
+		led-upgrade = &led_status;
 	};
 
 	chosen {
@@ -31,6 +35,17 @@
 			label = "reset";
 			gpios = <&pio 1 GPIO_ACTIVE_LOW>;
 			linux,code = <KEY_RESTART>;
+		};
+	};
+
+	leds {
+		compatible = "gpio-leds";
+
+		/* 请根据你板子的实际 GPIO 引脚和高/低电平触发修改 gpios 属性 */
+		led_status: status {
+			label = "green:status";
+			gpios = <&pio 0 GPIO_ACTIVE_LOW>;
+			default-state = "on";
 		};
 	};
 
@@ -54,7 +69,7 @@
 };
 
 &pwm {
-	/* PWM0/PWM1 已复用为 SFP 的 I2C0，无其他 PWM 设备，禁用此节点以消除 pinctrl 报错 */
+	/* PWM0/PWM1 已复用为 SFP 的 I2C0，禁用此节点以消除 pinctrl 报错 */
 	status = "disabled";
 };
 
