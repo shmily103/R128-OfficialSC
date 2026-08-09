@@ -13,10 +13,10 @@
 	aliases {
 		serial0 = &uart0;
 		label-mac-device = &gmac0;
-		led-boot = &led_status_blue;
-		led-failsafe = &led_status_red;
-		led-running = &led_status_blue;
-		led-upgrade = &led_status_blue;
+		led-boot = &led_green;
+		led-failsafe = &led_green;
+		led-running = &led_green;
+		led-upgrade = &led_green;
 	};
 
 	chosen {
@@ -41,16 +41,10 @@
 	leds {
 		compatible = "gpio-leds";
 
-		led_status_blue: status_blue {
-			label = "blue:status";
+		led_green: green {
+			label = "green:status";
 			gpios = <&pio 7 GPIO_ACTIVE_LOW>;
 			default-state = "on";
-		};
-
-		led_status_red: status_red {
-			label = "red:status";
-			gpios = <&pio 8 GPIO_ACTIVE_LOW>;
-			default-state = "off";
 		};
 	};
 
@@ -74,7 +68,7 @@
 };
 
 &pwm {
-	/* PWM0/PWM1 已复用为 SFP 的 I2C0，无其他 PWM 外设，禁用此节点以消除 pinctrl 报错 */
+	/* PWM0/PWM1 已严格复用给 SFP I2C，禁用 pwm 节点消除 pinctrl 错误 */
 	status = "disabled";
 };
 
