@@ -296,7 +296,12 @@
 	};
 
 	/* 正确的 SFP 软件 I2C 引脚配置：对 GPIO 9 / 10 设置 8mA + 上拉，不指定 function 避免抢占硬件 i2c0 */
-	i2c_sfp_pins: i2c-sfp-pins {
+i2c_sfp_pins: i2c-sfp-pins {
+		mux {
+			function = "i2c";
+			groups = "i2c0";
+		};
+
 		conf {
 			pins = "PWM0", "PWM1";
 			drive-strength = <MTK_DRIVE_8mA>;
