@@ -297,14 +297,8 @@
 
 	/* 正确的 SFP 软件 I2C 引脚配置：分拆PWM0和PWM1，避免PWM1因驱动不兼容报错 */
 i2c_sfp_pins: i2c-sfp-pins {
-	conf-pwm0 {
-		pins = "PWM0";
-		drive-strength = <MTK_DRIVE_8mA>;
-		bias-pull-up;
-	};
-
-	conf-pwm1 {
-		pins = "PWM1";
+	conf-gpio {
+		pins = "GPIO9", "GPIO10";
 		drive-strength = <MTK_DRIVE_8mA>;
 		bias-pull-up;
 	};
