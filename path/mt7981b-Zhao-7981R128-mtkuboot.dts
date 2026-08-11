@@ -295,7 +295,6 @@
 		};
 	};
 
-	/* 正确的 SFP 软件 I2C 引脚配置：设置 PWM0/PWM1 引脚组切换为通用 GPIO 模式并开启上拉 */
 	i2c_sfp_pins: i2c-sfp-pins {
 			conf {
 				pins = "WO_JTAG_JTDO", "WO_JTAG_JTDI";
@@ -304,7 +303,6 @@
 			};
 		};
 
-	/* 正确的 SFP 引脚配置：设置 SPI1 控制脚为 GPIO 上拉模式 */
 	sfp_pins: sfp-pins {
 		conf {
 			pins = "SPI1_CLK", "SPI1_MOSI", "SPI1_MISO", "SPI1_CS";
