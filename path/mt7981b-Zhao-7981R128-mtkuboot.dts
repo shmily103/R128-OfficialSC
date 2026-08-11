@@ -295,14 +295,19 @@
 		};
 	};
 
-	/* 正确的 SFP 软件 I2C 引脚配置：分拆PWM0和PWM1，避免PWM1因驱动不兼容报错 */
-i2c_sfp_pins: i2c-sfp-pins {
-	conf-gpio {
-		pins = "GPIO9", "GPIO10";
-		drive-strength = <MTK_DRIVE_8mA>;
-		bias-pull-up;
+	/* 正确的 SFP 软件 I2C 引脚配置：设置 PWM0/PWM1 引脚组切换为通用 GPIO 模式并开启上拉 */
+	i2c_sfp_pins: i2c-sfp-pins {
+		mux {
+			function = "pwm";
+			groups = "pwm0", "pwm1";
+		};
+
+		conf {
+			pins = "PWM0", "PWM1";
+			drive-strength = <MTK_DRIVE_8mA>;
+			bias-pull-up;
+		};
 	};
-};
 
 	/* 正确的 SFP 引脚配置：设置 SPI1 控制脚为 GPIO 上拉模式 */
 	sfp_pins: sfp-pins {
@@ -324,7 +329,6 @@ i2c_sfp_pins: i2c-sfp-pins {
 
 &watchdog {
 	status = "okay";
-};
 
 &wifi {
 	status = "okay";
@@ -335,6 +339,7 @@ i2c_sfp_pins: i2c-sfp-pins {
 };
 
 &xhci {
+	vbus-supply = <&usb_vbus>;
 	mediatek,u3p-dis-msk = <0x0>;
 	status = "okay";
 };
