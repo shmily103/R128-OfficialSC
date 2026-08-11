@@ -298,9 +298,9 @@
 	/* 正确的 SFP 软件 I2C 引脚配置：设置 PWM0/PWM1 引脚组切换为通用 GPIO 模式并开启上拉 */
 	i2c_sfp_pins: i2c-sfp-pins {
 			conf {
-				pins = "GPIO15", "GPIO16";
+				pins = "WO_JTAG_JTDO", "WO_JTAG_JTDI";
 				drive-strength = <MTK_DRIVE_8mA>;
-				bias-pull-up = <MTK_PUPD_SET_R1R0_11>; /* 使用开漏上拉或 MTK 标准上拉宏 */
+				bias-pull-up;
 			};
 		};
 
