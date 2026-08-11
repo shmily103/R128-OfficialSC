@@ -300,13 +300,13 @@ i2c_sfp_pins: i2c-sfp-pins {
 	conf-pwm0 {
 		pins = "PWM0";
 		drive-strength = <MTK_DRIVE_8mA>;
-		mediatek,pull-up-adv = <MTK_PUPD_SET_R1R0_11>;
+		bias-pull-up;
 	};
 
 	conf-pwm1 {
 		pins = "PWM1";
 		drive-strength = <MTK_DRIVE_8mA>;
-		mediatek,pull-up-adv = <MTK_PUPD_SET_R1R0_11>;
+		bias-pull-up;
 	};
 };
 
