@@ -299,7 +299,7 @@
 			conf {
 				pins = "WO_JTAG_JTDO", "WO_JTAG_JTDI";
 				drive-strength = <MTK_DRIVE_8mA>;
-				bias-pull-up;
+				bias-disable;
 			};
 		};
 
