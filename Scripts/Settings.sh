@@ -25,10 +25,10 @@ CFG_FILE="./package/base-files/files/bin/config_generate"
 sed -i "s/192\.168\.[0-9]*\.[0-9]*/$WRT_IP/g" $CFG_FILE
 #修改默认主机名
 sed -i "s/hostname='.*'/hostname='$WRT_NAME'/g" $CFG_FILE
-if [ -f "$CONFIG_GEN" ]; then
+if [ -f "$CFG_FILE" ]; then
     # 修改默认时区和时区显示名称
-    sed -i "s|set system.@system\[0\].timezone='.*'|set system.@system[0].timezone='HKT-8'|g" "$CONFIG_GEN"
-    sed -i "s|set system.@system\[0\].zonename='.*'|set system.@system[0].zonename='Asia/Hong_Kong'|g" "$CONFIG_GEN"
+    sed -i "s|set system.@system\[0\].timezone='.*'|set system.@system[0].timezone='HKT-8'|g" "$CFG_FILE"
+    sed -i "s|set system.@system\[0\].zonename='.*'|set system.@system[0].zonename='Asia/Hong_Kong'|g" "$CFG_FILE"
     echo "默认时区修改为 Asia/Hong_Kong 成功！"
 fi
 
