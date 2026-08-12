@@ -9,13 +9,16 @@ sed -i "s/192\.168\.[0-9]*\.[0-9]*/$WRT_IP/g" $(find ./feeds/luci/modules/luci-m
 #添加编译日期标识
 sed -i "s/(\(luciversion || ''\))/(\1) + (' \/ $WRT_MARK-$WRT_DATE')/g" $(find ./feeds/luci/modules/luci-mod-status/ -type f -name "10_system.js")
 
-# WIFI_FILE="./package/mtk/applications/mtwifi-cfg/files/mtwifi.sh"
-#修改WIFI名称
-# sed -i "s/ImmortalWrt/$WRT_SSID/g" $WIFI_FILE
-#修改WIFI加密
-# sed -i "s/encryption=.*/encryption='psk2+ccmp'/g" $WIFI_FILE
-#修改WIFI密码
-# sed -i "/set wireless.default_\${dev}.encryption='psk2+ccmp'/a \\\t\t\t\t\t\set wireless.default_\${dev}.key='$WRT_WORD'" $WIFI_FILE
+WIFI_FILE="package/network/config/wifi-scripts/files/lib/wifi/mac80211.uc"
+if [ -f "$WIFI_FILE" ]; then
+    sed -i "s|set \${si}\.ssid='.*'|set \${si}\.ssid='$WRT_SSID'|g" "$WIFI_FILE"
+    sed -i "s|set \${si}\.encryption='.*'|set \${si}\.encryption='sae-mixed'|g" "$WIFI_FILE"
+    sed -i "s|set \${si}\.key='.*'|set \${si}\.key='$WRT_WORD'|g" "$WIFI_FILE"
+    sed -i "s|set \${si}\.disabled='.*'|set \${si}\.disabled='0'|g" "$WIFI_FILE"
+    echo "Wi-Fi 默认配置修改成功！"
+else
+    echo "错误：未找到目标文件 $WIFI_FILE"
+fi
 
 CFG_FILE="./package/base-files/files/bin/config_generate"
 #修改默认IP地址
