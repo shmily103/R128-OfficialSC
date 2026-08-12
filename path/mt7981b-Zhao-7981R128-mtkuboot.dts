@@ -87,7 +87,7 @@
 	};
 
 	sfp1: sfp-wan {
-		compatible = "sff,sfp";
+		compatible = "sfp-connector";
 		pinctrl-names = "default";
 		pinctrl-0 = <&sfp_pins>;
 		i2c-bus = <&i2c_sfp1>;
