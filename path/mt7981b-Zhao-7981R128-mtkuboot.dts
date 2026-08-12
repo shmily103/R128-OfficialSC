@@ -293,7 +293,7 @@
 		};
 	};
 
-	i2c_pins: i2c-pins {
+	i2c_sfp_pins: i2c-sfp-pins {
 	    conf {
 	        pins = "GPIO_9", "GPIO_10";
 	        drive-strength = <MTK_DRIVE_8mA>;
