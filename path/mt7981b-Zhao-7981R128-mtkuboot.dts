@@ -293,6 +293,14 @@
 		};
 	};
 
+	i2c_pins: i2c-pins {
+	    conf {
+	        pins = "GPIO_9", "GPIO_10";
+	        drive-strength = <MTK_DRIVE_8mA>;
+	        bias-pull-up;
+	    };
+	};
+
 	sfp_pins: sfp-pins {
 		conf {
 			pins = "SPI1_CLK", "SPI1_MOSI", "SPI1_MISO", "SPI1_CS";
