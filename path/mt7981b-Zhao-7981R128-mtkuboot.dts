@@ -77,8 +77,6 @@
 
 	i2c_sfp1: i2c-gpio-0 {
 		compatible = "i2c-gpio";
-		pinctrl-names = "default";
-		pinctrl-0 = <&i2c_sfp_pins>;
 		sda-gpios = <&pio 9 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
 		scl-gpios = <&pio 10 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
 		i2c-gpio,delay-us = <2>;
@@ -292,19 +290,6 @@
 			pins = "SPI0_CLK", "SPI0_MOSI", "SPI0_MISO";
 			drive-strength = <MTK_DRIVE_8mA>;
 			bias-pull-down = <MTK_PUPD_SET_R1R0_11>;
-		};
-	};
-
-	i2c_sfp_pins: i2c-sfp-pins {
-		mux {
-			pins = "WO_JTAG_JTDO", "WO_JTAG_JTDI";
-			function = "gpio";
-		};
-	
-		conf {
-			pins = "WO_JTAG_JTDO", "WO_JTAG_JTDI";
-			drive-strength = <MTK_DRIVE_8mA>;
-			bias-pull-up;
 		};
 	};
 
