@@ -12,11 +12,29 @@ sed -i "s/(\(luciversion || ''\))/(\1) + (' \/ $WRT_MARK-$WRT_DATE')/g" $(find .
 # 修改默认 Wi-Fi 配置
 WIFI_FILE="./package/network/config/wifi-scripts/files/lib/wifi/mac80211.uc"
 if [ -f "$WIFI_FILE" ]; then
-    sed -i "s|set \${si}\.ssid='.*'|set \${si}\.ssid='$WRT_SSID'|g" "$WIFI_FILE"
+    # 替换加密方式、密码和开启状态
     sed -i "s|set \${si}\.encryption='.*'|set \${si}\.encryption='sae-mixed'|g" "$WIFI_FILE"
     sed -i "s|set \${si}\.key='.*'|set \${si}\.key='$WRT_WORD'|g" "$WIFI_FILE"
     sed -i "s|set \${si}\.disabled='.*'|set \${si}\.disabled='0'|g" "$WIFI_FILE"
-    echo "Wi-Fi 默认配置修改成功！"
+
+    # 使用 awk 判断频段：如果是 5G (radio5g/phy1/band 5g 等)，添加 -5G 后缀
+    awk -v ssid="$WRT_SSID" '
+    /config wifi-device/ { dev=$2; is_5g=0 }
+    /channel/ && ($2 ~ /(36|40|44|48|149|153|157|161|165)/) { is_5g=1 }
+    /band/ && ($2 ~ /5g|a/) { is_5g=1 }
+    /htmode/ && ($2 ~ /VHT|HE|EHT|AX|AC/) { is_5g=1 }
+    /set \${si}\.ssid=/ {
+        if (is_5g || dev ~ /5g|1/) {
+            print "			set ${si}.ssid=\x27" ssid "-5G\x27"
+        } else {
+            print "			set ${si}.ssid=\x27" ssid "\x27"
+        }
+        next
+    }
+    { print }
+    ' "$WIFI_FILE" > "${WIFI_FILE}.tmp" && mv "${WIFI_FILE}.tmp" "$WIFI_FILE"
+
+    echo "Wi-Fi 默认配置修改成功（已区分 2.4G 与 5G）！"
 else
     echo "错误：未找到目标文件 $WIFI_FILE"
 fi
