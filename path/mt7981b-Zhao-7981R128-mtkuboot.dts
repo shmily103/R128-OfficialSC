@@ -295,13 +295,18 @@
 		};
 	};
 
-	i2c_sfp_pins: i2c-sfp-pins {
-			conf {
-				pins = "WO_JTAG_JTDO", "WO_JTAG_JTDI";
-				drive-strength = <MTK_DRIVE_8mA>;
-				bias-disable;
-			};
-		};
+i2c_sfp_pins: i2c-sfp-pins {
+	pins-bus {
+		pinmux = <MT7981_PIN_9_WO_JTAG_JTDO__FUNC_GPIO>,
+		         <MT7981_PIN_10_WO_JTAG_JTDI__FUNC_GPIO>;
+	};
+
+	pins-cfg {
+		pins = "WO_JTAG_JTDO", "WO_JTAG_JTDI";
+		drive-strength = <MTK_DRIVE_8mA>;
+		bias-pull-up;
+	};
+};
 
 	sfp_pins: sfp-pins {
 		conf {
