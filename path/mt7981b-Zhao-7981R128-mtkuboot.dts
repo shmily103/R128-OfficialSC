@@ -297,7 +297,7 @@
 
 	i2c_sfp_pins: i2c-sfp-pins {
 		conf {
-			pins = "GPIO_9", "GPIO_10";
+			pins = "WO_JTAG_JTDO", "WO_JTAG_JTDI";
 			drive-strength = <MTK_DRIVE_8mA>;
 			bias-pull-up;
 		};
