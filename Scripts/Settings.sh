@@ -17,14 +17,18 @@ if [ -f "$WIFI_FILE" ]; then
     sed -i "s|set \${si}\.key='.*'|set \${si}\.key='$WRT_WORD'|g" "$WIFI_FILE"
     sed -i "s|set \${si}\.disabled='.*'|set \${si}\.disabled='0'|g" "$WIFI_FILE"
 
-    # 使用 awk 判断频段：如果是 5G (radio5g/phy1/band 5g 等)，添加 -5G 后缀
+    # 使用 awk 判断频段：按设备 (wifi-device) 块独立判断
     awk -v ssid="$WRT_SSID" '
-    /config wifi-device/ { dev=$2; is_5g=0 }
-    /channel/ && ($2 ~ /(36|40|44|48|149|153|157|161|165)/) { is_5g=1 }
-    /band/ && ($2 ~ /5g|a/) { is_5g=1 }
-    /htmode/ && ($2 ~ /VHT|HE|EHT|AX|AC/) { is_5g=1 }
+    /set \${s}=wifi-device/ { 
+        # 遇到新设备块时重置标记
+        is_5g = 0 
+    }
+    /set \${s}\.band=/ { 
+        # 直接匹配 uc 脚本输出的 band 属性
+        if ($0 ~ /5g|6g/) is_5g = 1 
+    }
     /set \${si}\.ssid=/ {
-        if (is_5g || dev ~ /5g|1/) {
+        if (is_5g) {
             print "			set ${si}.ssid=\x27" ssid "-5G\x27"
         } else {
             print "			set ${si}.ssid=\x27" ssid "\x27"
