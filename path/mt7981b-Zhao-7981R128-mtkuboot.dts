@@ -296,8 +296,12 @@
 	};
 
 	i2c_sfp_pins: i2c-sfp-pins {
+		mux {
+			function = "i2c";
+			groups = "i2c0";
+		};
 		conf {
-			pins = "gpio9", "gpio10";
+			pins = "GPIO_9", "GPIO_10";
 			drive-strength = <MTK_DRIVE_8mA>;
 			bias-pull-up;
 		};
@@ -305,7 +309,7 @@
 
 	sfp_pins: sfp-pins {
 		conf {
-			pins = "gpio3", "gpio12", "gpio34", "gpio35";
+			pins = "GPIO_3", "GPIO_12", "GPIO_34", "GPIO_35";
 			drive-strength = <MTK_DRIVE_8mA>;
 			bias-pull-up;
 		};
