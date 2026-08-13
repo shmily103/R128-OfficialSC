@@ -297,8 +297,8 @@
 
 	i2c_sfp_pins: i2c-sfp-pins {
 		mux {
-			function = "gpio";
-			groups = "i2c0";
+			pinmux = <MT7981_PIN_9_WO_JTAG_JTDO__FUNC_GPIO>,
+				 <MT7981_PIN_10_WO_JTAG_JTDI__FUNC_GPIO>;
 		};
 
 		conf {
