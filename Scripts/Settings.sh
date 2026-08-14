@@ -11,33 +11,16 @@ sed -i "s/(\(luciversion || ''\))/(\1) + (' \/ $WRT_MARK-$WRT_DATE')/g" $(find .
 
 # 修改默认 Wi-Fi 配置
 WIFI_FILE="./package/network/config/wifi-scripts/files/lib/wifi/mac80211.uc"
-if [ -f "$WIFI_FILE" ]; then
-    # 1. 替换加密方式、密码和开启状态
-    sed -i "s|set \${si}\.encryption='.*'|set \${si}\.encryption='sae-mixed'|g" "$WIFI_FILE"
-    sed -i "s|set \${si}\.key='.*'|set \${si}\.key='$WRT_WORD'|g" "$WIFI_FILE"
-    sed -i "s|set \${si}\.disabled='.*'|set \${si}\.disabled='0'|g" "$WIFI_FILE"
 
-    # 2. 修改 SSID（精准捕获 5g/6g 标记并附加 -5G）
-    awk -v ssid="$WRT_SSID" '
-    # 匹配到 band 属性时更新频段标记
-    /set \${s}\.band=/ {
-        if ($0 ~ /5g|6g/) {
-            is_5g = 1
-        } else {
-            is_5g = 0
-        }
-    }
-    # 匹配到 ssid 这一行时，根据上文捕获到的 is_5g 标志动态替换
-    /set \${si}\.ssid=/ {
-        if (is_5g == 1) {
-            print "set ${si}.ssid=\x27" ssid "-5G\x27"
-        } else {
-            print "set ${si}.ssid=\x27" ssid "\x27"
-        }
-        next
-    }
-    { print }
-    ' "$WIFI_FILE" > "${WIFI_FILE}.tmp" && mv "${WIFI_FILE}.tmp" "$WIFI_FILE"
+if [ -f "$WIFI_FILE" ]; then
+    # 1. 修改全局加密方式、密码和开启状态
+    sed -i "s|set \${si}\.encryption=.*|set \${si}\.encryption='sae-mixed'|g" "$WIFI_FILE"
+    sed -i "s|set \${si}\.key=.*|set \${si}\.key='$WRT_WORD'|g" "$WIFI_FILE"
+    sed -i "s|set \${si}\.disabled=.*|set \${si}\.disabled='0'|g" "$WIFI_FILE"
+
+    # 2. 修改 SSID 逻辑：在 ucode 中判断 band_name，若非 2g 则自动加上 -5G
+    # 将原有 set ${si}.ssid=... 替换为 ucode 条件分支
+    sed -i "s|set \${si}\.ssid='.*'|set \${si}\.ssid='\${band_name == \"2g\" ? \"$WRT_SSID\" : \"$WRT_SSID-5G\"}'|g" "$WIFI_FILE"
 
     echo "Wi-Fi 默认配置修改成功（已区分 2.4G 与 5G）！"
 else
