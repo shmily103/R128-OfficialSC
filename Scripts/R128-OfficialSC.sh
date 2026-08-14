@@ -15,3 +15,14 @@ cp -r R128-OfficialSC/path/filogic.mk target/linux/mediatek/image
 cp -r R128-OfficialSC/path/platform.sh target/linux/mediatek/filogic/base-files/lib/upgrade
 # cp -r R128-OfficialSC/path/90-default-settings target/linux/mediatek/filogic/base-files/etc/uci-defaults
 rm -rf R128-OfficialSC
+
+# 修复fstab报错
+mkdir -p package/base-files/files/etc/config && cat << 'EOF' > package/base-files/files/etc/config/fstab
+config global
+	option anon_swap '0'
+	option anon_mount '0'
+	option auto_swap '1'
+	option auto_mount '1'
+	option delay_root '5'
+	option check_fs '0'
+EOF
