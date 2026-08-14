@@ -12,26 +12,27 @@ sed -i "s/(\(luciversion || ''\))/(\1) + (' \/ $WRT_MARK-$WRT_DATE')/g" $(find .
 # 修改默认 Wi-Fi 配置
 WIFI_FILE="./package/network/config/wifi-scripts/files/lib/wifi/mac80211.uc"
 if [ -f "$WIFI_FILE" ]; then
-    # 替换加密方式、密码和开启状态
+    # 1. 替换加密方式、密码和开启状态
     sed -i "s|set \${si}\.encryption='.*'|set \${si}\.encryption='sae-mixed'|g" "$WIFI_FILE"
     sed -i "s|set \${si}\.key='.*'|set \${si}\.key='$WRT_WORD'|g" "$WIFI_FILE"
     sed -i "s|set \${si}\.disabled='.*'|set \${si}\.disabled='0'|g" "$WIFI_FILE"
 
-    # 使用 awk 判断频段：按设备 (wifi-device) 块独立判断
+    # 2. 修改 SSID（精准捕获 5g/6g 标记并附加 -5G）
     awk -v ssid="$WRT_SSID" '
-    /set \${s}=wifi-device/ { 
-        # 遇到新设备块时重置标记
-        is_5g = 0 
-    }
-    /set \${s}\.band=/ { 
-        # 直接匹配 uc 脚本输出的 band 属性
-        if ($0 ~ /5g|6g/) is_5g = 1 
-    }
-    /set \${si}\.ssid=/ {
-        if (is_5g) {
-            print "			set ${si}.ssid=\x27" ssid "-5G\x27"
+    # 匹配到 band 属性时更新频段标记
+    /set \${s}\.band=/ {
+        if ($0 ~ /5g|6g/) {
+            is_5g = 1
         } else {
-            print "			set ${si}.ssid=\x27" ssid "\x27"
+            is_5g = 0
+        }
+    }
+    # 匹配到 ssid 这一行时，根据上文捕获到的 is_5g 标志动态替换
+    /set \${si}\.ssid=/ {
+        if (is_5g == 1) {
+            print "set ${si}.ssid=\x27" ssid "-5G\x27"
+        } else {
+            print "set ${si}.ssid=\x27" ssid "\x27"
         }
         next
     }
