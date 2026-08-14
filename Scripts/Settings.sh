@@ -68,6 +68,17 @@ echo "CONFIG_LUCI_LANG_zh_Hans=y" >> ./.config
 echo "CONFIG_PACKAGE_luci-theme-$WRT_THEME=y" >> ./.config
 echo "CONFIG_PACKAGE_luci-app-$WRT_THEME-config=y" >> ./.config
 
+# 修复fstab报错
+mkdir -p package/base-files/files/etc/config && cat << 'EOF' > package/base-files/files/etc/config/fstab
+config global
+	option anon_swap '0'
+	option anon_mount '0'
+	option auto_swap '1'
+	option auto_mount '1'
+	option delay_root '5'
+	option check_fs '0'
+EOF
+
 # 手动调整的插件
 if [ -n "$WRT_PACKAGE" ]; then
 	echo -e "$WRT_PACKAGE" >> ./.config
