@@ -23,10 +23,8 @@ if [ -f "$WIFI_FILE" ]; then
     sed -i "s|set \${si}\.encryption='.*'|set \${si}\.encryption='sae-mixed'|g" "$WIFI_FILE"
     sed -i "s|set \${si}\.key='.*'|set \${si}\.key='$WRT_WORD'|g" "$WIFI_FILE"
     sed -i "s|set \${si}\.disabled='.*'|set \${si}\.disabled='0'|g" "$WIFI_FILE"
-
     # 2. 修改 SSID
     sed -i "s|set \${si}\.ssid='.*'|set \${si}\.ssid='\${band_name == \"2g\" ? \"$WRT_SSID\" : \"$WRT_SSID-5G\"}'|g" "$WIFI_FILE"
-
     echo "Wi-Fi 默认配置修改成功（已区分 2.4G 与 5G）！"
 else
     echo "错误：未找到目标文件 $WIFI_FILE"
@@ -37,14 +35,11 @@ CFG_FILE="./package/base-files/files/bin/config_generate"
 if [ -f "$CFG_FILE" ]; then
     # 1. 修改默认 IP 地址
     sed -i "s/192\.168\.[0-9]*\.[0-9]*/$WRT_IP/g" "$CFG_FILE"
-
     # 2. 修改默认主机名
     sed -i "s/set system\.@system\[-1\]\.hostname='.*'/set system.@system[-1].hostname='$WRT_NAME'/g" "$CFG_FILE"
-
     # 3. 修改默认时区 (分别替换 timezone 和 zonename)
     sed -i "s/set system\.@system\[-1\]\.timezone='.*'/set system.@system[-1].timezone='HKT-8'/g" "$CFG_FILE"
     sed -i "s/set system\.@system\[-1\]\.zonename='.*'/set system.@system[-1].zonename='Asia\/Hong_Kong'/g" "$CFG_FILE"
-
     echo "系统默认参数 (IP/主机名/香港时区) 修改成功！"
 else
     echo "错误：未找到目标文件 $CFG_FILE"
