@@ -13,13 +13,12 @@ sed -i "s/(\(luciversion || ''\))/(\1) + (' \/ $WRT_MARK-$WRT_DATE')/g" $(find .
 WIFI_FILE="./package/network/config/wifi-scripts/files/lib/wifi/mac80211.uc"
 
 if [ -f "$WIFI_FILE" ]; then
-    # 1. 修改全局加密方式、密码和开启状态
-    sed -i "s|set \${si}\.encryption=.*|set \${si}\.encryption='sae-mixed'|g" "$WIFI_FILE"
-    sed -i "s|set \${si}\.key=.*|set \${si}\.key='$WRT_WORD'|g" "$WIFI_FILE"
-    sed -i "s|set \${si}\.disabled=.*|set \${si}\.disabled='0'|g" "$WIFI_FILE"
+    # 1. 替换加密方式、密码和开启状态（完全保留你原来的写法）
+    sed -i "s|set \${si}\.encryption='.*'|set \${si}\.encryption='sae-mixed'|g" "$WIFI_FILE"
+    sed -i "s|set \${si}\.key='.*'|set \${si}\.key='$WRT_WORD'|g" "$WIFI_FILE"
+    sed -i "s|set \${si}\.disabled='.*'|set \${si}\.disabled='0'|g" "$WIFI_FILE"
 
-    # 2. 修改 SSID 逻辑：在 ucode 中判断 band_name，若非 2g 则自动加上 -5G
-    # 将原有 set ${si}.ssid=... 替换为 ucode 条件分支
+    # 2. 修改 SSID：用 ucode 的三元表达式替代 awk
     sed -i "s|set \${si}\.ssid='.*'|set \${si}\.ssid='\${band_name == \"2g\" ? \"$WRT_SSID\" : \"$WRT_SSID-5G\"}'|g" "$WIFI_FILE"
 
     echo "Wi-Fi 默认配置修改成功（已区分 2.4G 与 5G）！"
