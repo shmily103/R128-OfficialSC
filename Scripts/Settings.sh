@@ -2,6 +2,12 @@
 # SPDX-License-Identifier: MIT
 # Copyright (C) 2026 VIKINGYFY
 
+# 添加私人插件
+mkdir package/Panzy && cd package/Panzy
+git clone --filter=blob:none --sparse --branch master https://github.com/vernesong/OpenClash.git luci-app-openclash && cd luci-app-openclash && git sparse-checkout set luci-app-openclash && cd ..
+git clone --filter=blob:none --sparse --branch master https://github.com/lisaac/luci-app-diskman.git luci-app-diskman && cd luci-app-diskman && git sparse-checkout set applications/luci-app-diskman && cd ..
+cd .. && cd ..
+
 # 修改默认主题
 sed -i "s/luci-theme-bootstrap/luci-theme-$WRT_THEME/g" $(find ./feeds/luci/collections/ -type f -name "Makefile")
 # 修改 lan 关联 IP
