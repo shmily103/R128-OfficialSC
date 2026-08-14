@@ -13,15 +13,15 @@ sed -i "s/(\(luciversion || ''\))/(\1) + (' \/ $WRT_MARK-$WRT_DATE')/g" $(find .
 WIFI_FILE="./package/network/config/wifi-scripts/files/lib/wifi/mac80211.uc"
 
 if [ -f "$WIFI_FILE" ]; then
-    # 1. 替换加密方式、密码和开启状态（完全保留你原来的写法）
+    # 1. 替换默认 SSID（保留系统原生的 -5G 自动区分逻辑）
+    sed -i "s/OpenWrt/$WRT_SSID/g" "$WIFI_FILE"
+
+    # 2. 替换加密方式、密码和开启状态（你原本的正确代码）
     sed -i "s|set \${si}\.encryption='.*'|set \${si}\.encryption='sae-mixed'|g" "$WIFI_FILE"
     sed -i "s|set \${si}\.key='.*'|set \${si}\.key='$WRT_WORD'|g" "$WIFI_FILE"
     sed -i "s|set \${si}\.disabled='.*'|set \${si}\.disabled='0'|g" "$WIFI_FILE"
 
-    # 2. 修改 SSID：用 ucode 的三元表达式替代 awk
-    sed -i "s|set \${si}\.ssid='.*'|set \${si}\.ssid='\${band_name == \"2g\" ? \"$WRT_SSID\" : \"$WRT_SSID-5G\"}'|g" "$WIFI_FILE"
-
-    echo "Wi-Fi 默认配置修改成功（已区分 2.4G 与 5G）！"
+    echo "Wi-Fi 默认配置修改成功！"
 else
     echo "错误：未找到目标文件 $WIFI_FILE"
 fi
