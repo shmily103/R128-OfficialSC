@@ -56,7 +56,7 @@ echo "CONFIG_LUCI_LANG_zh_Hans=y" >> ./.config
 echo "CONFIG_PACKAGE_luci-theme-$WRT_THEME=y" >> ./.config
 echo "CONFIG_PACKAGE_luci-app-$WRT_THEME-config=y" >> ./.config
 
-# 修复fstab报错
+# 修改硬盘自动挂载
 mkdir -p package/base-files/files/etc/config && cat << 'EOF' > package/base-files/files/etc/config/fstab
 config global
 	option anon_swap '0'
