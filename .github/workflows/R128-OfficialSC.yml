@@ -245,6 +245,15 @@ jobs:
 
           make download -j$(nproc)
 
+      - name: Verify LINUX_VERMAGIC
+        run: |
+          cd ./wrt/
+          
+          echo "=== Checking kernel-version.mk ==="
+          tail -n 5 include/kernel-version.mk
+          echo "=== Checking ext-vermagic ==="
+          ./scripts/ext-vermagic
+    
       # Step 12: 开始多核并行编译固件；若失败则单核输出详细日志 (V=s) 方便排错
       - name: Compile Firmware
         if: env.WRT_TEST != 'true'
