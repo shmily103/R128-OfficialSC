@@ -24,16 +24,15 @@ fi
 echo "[+] Successfully fetched Official Vermagic: $VERMAGIC"
 
 # =========================================================
-# 2. 劫持 scripts/ext-vermagic (彻底解决内核编译重新计算并覆盖的问题)
+# 2. 劫持 scripts/ext-vermagic (去除文件存在性检查，强行创建/覆盖)
 # =========================================================
-if [ -f "scripts/ext-vermagic" ]; then
-    cat << EOF > scripts/ext-vermagic
+mkdir -p scripts
+cat << 'EOF' > scripts/ext-vermagic
 #!/bin/sh
-echo "$VERMAGIC"
 EOF
-    chmod +x scripts/ext-vermagic
-    echo "[+] Successfully hijacked scripts/ext-vermagic"
-fi
+echo "echo \"$VERMAGIC\"" >> scripts/ext-vermagic
+chmod +x scripts/ext-vermagic
+echo "[+] Successfully hijacked scripts/ext-vermagic"
 
 # =========================================================
 # 3. 修改 include 编译规则 (双重保险)
