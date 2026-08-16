@@ -55,7 +55,7 @@ jobs:
         with:
           gh_token: ${{ secrets.GITHUB_TOKEN }}
           delete_releases: true       # 删除之前的所有 Release
-          releases_keep_latest: 0     # 保留最新的 Release 数量（0 表示全删）
+          releases_keep_latest: 1     # 保留最新的 Release 数量（0 表示全删）
           delete_tags: true           # 删掉旧 Release 对应的 Git 标签
           delete_workflows: true      # 清理旧的工作流运行历史记录
           workflows_keep_day: 0       # 保留工作流天数（0 表示全删）
