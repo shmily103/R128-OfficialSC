@@ -8,9 +8,9 @@ OW_VER="25.12.5"
 TARGET=$(grep "^CONFIG_TARGET_BOARD=" .config | cut -d'=' -f2 | tr -d '"')
 SUBTARGET=$(grep "^CONFIG_TARGET_SUBTARGET=" .config | cut -d'=' -f2 | tr -d '"')
 
-# 直接从 kmods 目录名提取 vermagic (匹配末尾 32 位 MD5 哈希)
+# 从 kmods/ 页面拉取目录名并提取最后一个连字符后的 vermagic (32位MD5)
 URL="https://downloads.openwrt.org/releases/${OW_VER}/targets/${TARGET}/${SUBTARGET}/kmods/"
-VERMAGIC=$(curl -sL --connect-timeout 10 "$URL" | grep -oE '[a-f0-9]{32}' | head -n 1)
+VERMAGIC=$(curl -sL --connect-timeout 15 "$URL" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+-[0-9]+-[a-f0-9]{32}' | head -n 1 | awk -F'-' '{print $NF}')
 
 [ -n "$VERMAGIC" ] || { echo "Error: Failed to fetch vermagic!"; exit 1; }
 
