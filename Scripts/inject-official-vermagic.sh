@@ -1,25 +1,48 @@
-#!/usr/bin/env bash
-set -e
+#!/bin/bash
 
-# 自动处理分支名：如果是 v25.12.5，剔除 v 提取为 25.12.5
-OW_VER="${BRANCH_NAME#v}"
+# =========================================================
+# 1. 获取官方 vermagic (保留你原有的获取逻辑)
+# =========================================================
+# 假设你脚本前面获取到的指纹变量是 TARGET_VERMAGIC
+# TARGET_VERMAGIC=$(curl -s .....)
 
-[ -f ".config" ] || { echo "Error: .config not found!"; exit 1; }
+if [ -z "$TARGET_VERMAGIC" ]; then
+    echo "[-] Error: TARGET_VERMAGIC is empty!"
+    exit 1
+fi
 
-# 获取目标架构
-TARGET=$(make --no-print-directory val.BOARD 2>/dev/null || grep "^CONFIG_TARGET_BOARD=" .config | cut -d'=' -f2 | tr -d '"')
-SUBTARGET=$(make --no-print-directory val.SUBTARGET 2>/dev/null || grep "^CONFIG_TARGET_SUBTARGET=" .config | cut -d'=' -f2 | tr -d '"')
+echo "[+] Target Official Vermagic: $TARGET_VERMAGIC"
 
-# 获取官方 kmods 目录中的 vermagic 指纹
-URL="https://downloads.openwrt.org/releases/${OW_VER}/targets/${TARGET}/${SUBTARGET}/kmods/"
-VERMAGIC=$(curl -sL --connect-timeout 15 "$URL" | grep -oE '[a-f0-9]{32}' | head -n 1)
+# =========================================================
+# 2. 核心拦截：直接替换 scripts/ext-vermagic 脚本本身
+# 彻底破除编译过程中“内核重新计算并覆盖 vermagic”的时序问题
+# =========================================================
+if [ -f "scripts/ext-vermagic" ]; then
+    cat << EOF > scripts/ext-vermagic
+#!/bin/sh
+echo "$TARGET_VERMAGIC"
+EOF
+    chmod +x scripts/ext-vermagic
+    echo "[+] Successfully hijacked scripts/ext-vermagic"
+fi
 
-[ -n "$VERMAGIC" ] || { echo "Error: Failed to fetch vermagic!"; exit 1; }
+# =========================================================
+# 3. 强行修改 include/kernel-defaults.mk 规则 (双重保险)
+# 防止 Makefile 使用其他方式跳过 ext-vermagic 计算
+# =========================================================
+if [ -f "include/kernel-defaults.mk" ]; then
+    # 替换所有向 .vermagic 写入的命令，直接写死目标值
+    sed -i "s|\$(TOPDIR)/scripts/ext-vermagic.*|echo \"$TARGET_VERMAGIC\" > \$(LINUX_DIR)/.vermagic|g" include/kernel-defaults.mk
+    echo "[+] Patched include/kernel-defaults.mk"
+fi
 
-# 修改 Makefile 指纹规则（修正正则匹配并保留 Makefile 规则首行的 Tab 制表符 \t）
-sed -i "s|grep '=[ym]'.*|\techo \"${VERMAGIC}\" > \$(LINUX_DIR)/\.vermagic|g" include/kernel-defaults.mk
+if [ -f "include/kernel-build.mk" ]; then
+    sed -i "s|cat \$(LINUX_DIR)/\.vermagic.*|echo \"$TARGET_VERMAGIC\"|g" include/kernel-build.mk
+    echo "[+] Patched include/kernel-build.mk"
+fi
 
-# 双重保险：避免部分分支版本在配置覆盖时重置 vermagic
-echo "CONFIG_VERMAGIC=\"${VERMAGIC}\"" >> .config
-
-echo "==> Successfully injected vermagic: ${VERMAGIC}"
+# =========================================================
+# 4. 预先写入当前根目录的 .vermagic
+# =========================================================
+echo "$TARGET_VERMAGIC" > .vermagic
+echo "[+] Injected vermagic into root .vermagic file."
