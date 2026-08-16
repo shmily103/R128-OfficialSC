@@ -235,7 +235,7 @@ jobs:
 
           make download -j$(nproc)
 
-            # 修改内核指纹与官方版本一致
+      # 修改内核指纹与官方版本一致
       - name: Inject Official Vermagic
         env:
           BRANCH_NAME: ${{ matrix.REPO_INFO.BRANCH }}
