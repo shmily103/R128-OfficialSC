@@ -2,7 +2,7 @@
 # Copyright (C) 2026 VIKINGYFY
 
 # CI 项目名称：在 GitHub Actions 页面显示的名称
-name: R128-OfficialSC
+name: private
 
 # CI 触发条件配置
 on:
