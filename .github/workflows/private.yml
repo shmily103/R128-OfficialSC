@@ -232,6 +232,7 @@ jobs:
         env:
           BRANCH_NAME: ${{ matrix.REPO_INFO.BRANCH }}
         run: |
+          cd openwrt
           chmod +x ./scripts/inject-official-vermagic.sh
           ./scripts/inject-official-vermagic.sh
       
