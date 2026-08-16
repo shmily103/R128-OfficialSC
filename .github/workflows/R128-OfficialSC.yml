@@ -223,7 +223,10 @@ jobs:
 
           # 执行用户自定义配置修改脚本
           $GITHUB_WORKSPACE/Scripts/Settings.sh
-
+          
+          # 修改内核指纹与官方版本一致
+          bash $GITHUB_WORKSPACE/Scripts/PatchVermagic.sh
+          
           # 展开依赖配置并清理无用文件
           make defconfig -j$(nproc) && make clean -j$(nproc)
 
