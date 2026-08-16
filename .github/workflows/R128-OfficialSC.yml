@@ -32,9 +32,9 @@ env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # 自动调用的 GitHub API 密钥
   # 统一自定义配置参数 (路由器默认参数)
   WRT_THEME: material                      # 默认 LucI 主题
-  WRT_NAME: Panzy                          # 主机名
-  WRT_SSID: Panzy                          # 默认 Wi-Fi 名称
-  WRT_WORD: 12345678                       # 默认 Wi-Fi 密码
+  WRT_NAME: OpenWrt                          # 主机名
+  WRT_SSID: OpenWrt                          # 默认 Wi-Fi 名称
+  WRT_WORD: 无                             # 默认 Wi-Fi 密码
   WRT_IP: 192.168.6.1                      # 默认后台登录 IP
   WRT_PW: 无                               # 默认后台登录密码
   WRT_PACKAGE: ${{ inputs.PACKAGE }}       # 接收手动输入的插件包
