@@ -11,7 +11,7 @@ TARGET=$(make --no-print-directory val.BOARD 2>/dev/null || grep "^CONFIG_TARGET
 SUBTARGET=$(make --no-print-directory val.SUBTARGET 2>/dev/null || grep "^CONFIG_TARGET_SUBTARGET=" .config | cut -d'=' -f2 | tr -d '"')
 
 # =========================================================
-# 1. 保留你原有的获取官方指纹逻辑
+# 1. 保留原有的获取官方指纹逻辑
 # =========================================================
 URL="https://downloads.openwrt.org/releases/${OW_VER}/targets/${TARGET}/${SUBTARGET}/kmods/"
 VERMAGIC=$(curl -sL --connect-timeout 15 "$URL" | grep -oE '[a-f0-9]{32}' | head -n 1)
@@ -24,13 +24,13 @@ fi
 echo "[+] Successfully fetched Official Vermagic: $VERMAGIC"
 
 # =========================================================
-# 2. 劫持 scripts/ext-vermagic (去除文件存在性检查，强行创建/覆盖)
+# 2. 劫持 scripts/ext-vermagic (强制创建/覆盖，防止编译时被重新生成)
 # =========================================================
 mkdir -p scripts
-cat << 'EOF' > scripts/ext-vermagic
+cat << EOF > scripts/ext-vermagic
 #!/bin/sh
+echo "$VERMAGIC"
 EOF
-echo "echo \"$VERMAGIC\"" >> scripts/ext-vermagic
 chmod +x scripts/ext-vermagic
 echo "[+] Successfully hijacked scripts/ext-vermagic"
 
