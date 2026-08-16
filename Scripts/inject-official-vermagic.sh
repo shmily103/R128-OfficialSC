@@ -11,7 +11,7 @@ TARGET=$(make --no-print-directory val.BOARD 2>/dev/null || grep "^CONFIG_TARGET
 SUBTARGET=$(make --no-print-directory val.SUBTARGET 2>/dev/null || grep "^CONFIG_TARGET_SUBTARGET=" .config | cut -d'=' -f2 | tr -d '"')
 
 # =========================================================
-# 1. 保留你原有的获取官方指纹逻辑（未做任何修改）
+# 1. 保留你原有的获取官方指纹逻辑
 # =========================================================
 URL="https://downloads.openwrt.org/releases/${OW_VER}/targets/${TARGET}/${SUBTARGET}/kmods/"
 VERMAGIC=$(curl -sL --connect-timeout 15 "$URL" | grep -oE '[a-f0-9]{32}' | head -n 1)
@@ -43,7 +43,6 @@ if [ -f "include/kernel-defaults.mk" ]; then
     echo "[+] Patched include/kernel-defaults.mk"
 fi
 
-if [ -f "include/kernel-build.mk" ]; me
 if [ -f "include/kernel-build.mk" ]; then
     sed -i "s|cat \$(LINUX_DIR)/\.vermagic.*|echo \"$VERMAGIC\"|g" include/kernel-build.mk
     echo "[+] Patched include/kernel-build.mk"
