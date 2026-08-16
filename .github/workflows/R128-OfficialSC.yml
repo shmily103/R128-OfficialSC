@@ -234,8 +234,8 @@ jobs:
         run: |
           cd ./wrt/
           
-          bash chmod +x $GITHUB_WORKSPACE/scripts/inject-official-vermagic.sh
-          bash $GITHUB_WORKSPACE/scripts/inject-official-vermagic.sh
+          chmod +x $GITHUB_WORKSPACE/scripts/inject-official-vermagic.sh
+          $GITHUB_WORKSPACE/scripts/inject-official-vermagic.sh
           
       # Step 11: 预先下载所有编译所需依赖源码包 (DL 目录)
       - name: Download Packages
