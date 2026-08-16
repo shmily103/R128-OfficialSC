@@ -1,4 +1,14 @@
 #!/bin/bash
+set -e
+
+# 自动处理分支名：如果是 v25.12.5，剔除 v 提取为 25.12.5
+OW_VER="${BRANCH_NAME#v}"
+
+[ -f ".config" ] || { echo "Error: .config not found!"; exit 1; }
+
+# 获取目标架构
+TARGET=$(make --no-print-directory val.BOARD 2>/dev/null || grep "^CONFIG_TARGET_BOARD=" .config | cut -d'=' -f2 | tr -d '"')
+SUBTARGET=$(make --no-print-directory val.SUBTARGET 2>/dev/null || grep "^CONFIG_TARGET_SUBTARGET=" .config | cut -d'=' -f2 | tr -d '"')
 
 # =========================================================
 # 1. 保留你原有的获取官方指纹逻辑（未做任何修改）
