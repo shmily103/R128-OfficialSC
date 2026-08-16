@@ -16,7 +16,10 @@ VERMAGIC=$(curl -sL --connect-timeout 15 "$URL" | grep -oE '[a-f0-9]{32}' | head
 
 [ -n "$VERMAGIC" ] || { echo "Error: Failed to fetch vermagic!"; exit 1; }
 
-# 修改 Makefile 指纹规则
-sed -i "s|grep '=\[ym\]'.*mkhash md5 > \$(LINUX_DIR)/\.vermagic|echo \"${VERMAGIC}\" > \$(LINUX_DIR)/\.vermagic|g" include/kernel-defaults.mk
+# 修改 Makefile 指纹规则（修正正则匹配并保留 Makefile 规则首行的 Tab 制表符 \t）
+sed -i "s|grep '=[ym]'.*|\techo \"${VERMAGIC}\" > \$(LINUX_DIR)/\.vermagic|g" include/kernel-defaults.mk
+
+# 双重保险：避免部分分支版本在配置覆盖时重置 vermagic
+echo "CONFIG_VERMAGIC=\"${VERMAGIC}\"" >> .config
 
 echo "==> Successfully injected vermagic: ${VERMAGIC}"
