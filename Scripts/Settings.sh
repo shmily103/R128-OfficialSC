@@ -19,12 +19,22 @@ sed -i "s/(\(luciversion || ''\))/(\1) + (' \/ $WRT_MARK-$WRT_DATE')/g" $(find .
 WIFI_FILE="./package/network/config/wifi-scripts/files/lib/wifi/mac80211.uc"
 
 if [ -f "$WIFI_FILE" ]; then
-    # 1. 替换加密方式、密码和开启状态
-    sed -i "s|set \${si}\.encryption='.*'|set \${si}\.encryption='sae-mixed'|g" "$WIFI_FILE"
-    sed -i "s|set \${si}\.key='.*'|set \${si}\.key='$WRT_WORD'|g" "$WIFI_FILE"
+    if [ -z "$WRT_WORD" ]; then
+        # 1.1 密码为空：不加密（encryption 设为 none，key 设为空）
+        sed -i "s|set \${si}\.encryption='.*'|set \${si}\.encryption='none'|g" "$WIFI_FILE"
+        sed -i "s|set \${si}\.key='.*'|set \${si}\.key=''|g" "$WIFI_FILE"
+    else
+        # 1.2 密码不为空：使用 WPA2/WPA3 混合加密
+        sed -i "s|set \${si}\.encryption='.*'|set \${si}\.encryption='sae-mixed'|g" "$WIFI_FILE"
+        sed -i "s|set \${si}\.key='.*'|set \${si}\.key='$WRT_WORD'|g" "$WIFI_FILE"
+    fi
+
+    # 启用 Wi-Fi
     sed -i "s|set \${si}\.disabled='.*'|set \${si}\.disabled='0'|g" "$WIFI_FILE"
+    
     # 2. 修改 SSID
     sed -i "s|set \${si}\.ssid='.*'|set \${si}\.ssid='\${band_name == \"2g\" ? \"$WRT_SSID\" : \"$WRT_SSID-5G\"}'|g" "$WIFI_FILE"
+    
     echo "Wi-Fi 默认配置修改成功（已区分 2.4G 与 5G）！"
 else
     echo "错误：未找到目标文件 $WIFI_FILE"
