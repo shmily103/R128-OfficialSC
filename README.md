@@ -3,7 +3,6 @@
 在Config/R128-OfficialSC.txt文件中增减定制插件。
 
 在.github/workflows/R128-OfficialSC.yml文件中修改默认的参数配置：
-
 <br>  WRT_THEME: # 默认 LucI 主题
 <br>  WRT_NAME:  # 主机名
 <br>  WRT_SSID:  # 默认 Wi-Fi 名称
