@@ -48,25 +48,37 @@ find build_dir/ -name ".vermagic" -exec sh -c 'echo "$1" > "$2"' _ "$VERMAGIC" {
 
 echo "[+] Complete injection executed successfully."
 
-# 6. 解决 base-files 版本问题：抓取官方 version.buildinfo 并劫持版本号
-VERSION_URL="https://downloads.openwrt.org/releases/${OW_VER}/targets/${TARGET}/${SUBTARGET}/version.buildinfo"
-OFFICIAL_REV=$(curl -sL --connect-timeout 15 "$VERSION_URL" | tr -d '\r\n')
+# =========================================================
+# 6. 解决 base-files 版本问题：直接解析官方 apk 包文件名
+# =========================================================
+APK_URL="https://downloads.openwrt.org/releases/${OW_VER}/targets/${TARGET}/${SUBTARGET}/packages/"
+echo "[+] Fetching base-files version from: $APK_URL"
 
-if [ -n "$OFFICIAL_REV" ]; then
-    echo "[+] Successfully fetched Official Revision: $OFFICIAL_REV"
+# 从网页HTML列表中匹配 base-files-xxxx~xxxxxx.apk 中的版本号 (例如 1711~f5dae5ece4)
+BASE_FILES_VER=$(curl -sL --connect-timeout 15 "$APK_URL" | grep -oE 'base-files-[0-9]+~[a-f0-9]+\.apk' | head -n 1 | sed -E 's/base-files-(.*)\.apk/\1/')
+
+if [ -n "$BASE_FILES_VER" ]; then
+    echo "[+] Successfully fetched Official base-files Version: $BASE_FILES_VER"
     
-    # 劫持 getver.sh
-    cat << EOF > scripts/getver.sh
-#!/bin/sh
-echo "$OFFICIAL_REV"
-EOF
-    chmod +x scripts/getver.sh
+    # 拆分波浪号前面的 PKG_RELEASE (1711) 和后面的 Commit Hash (f5dae5ece4)
+    PKG_REL=$(echo "$BASE_FILES_VER" | cut -d'~' -f1)
+    PKG_HASH=$(echo "$BASE_FILES_VER" | cut -d'~' -f2)
 
-    # 提取 Revision 中的数字部分 (比如从 r1711-f5dae5ece4 提取出 1711)
-    # 强行修改 package/base-files/Makefile 里的 PKG_RELEASE，把默认的 1 改成官方数字
-    REV_NUM=$(echo "$OFFICIAL_REV" | grep -oE '[0-9]+' | head -n 1)
-    if [ -n "$REV_NUM" ] && [ -f "package/base-files/Makefile" ]; then
-        sed -i "s/PKG_RELEASE:=.*/PKG_RELEASE:=$REV_NUM/g" package/base-files/Makefile
-        echo "[+] Successfully patched package/base-files/Makefile PKG_RELEASE to $REV_NUM"
+    # 1. 替换 package/base-files/Makefile 里的 PKG_RELEASE 为 1711
+    if [ -n "$PKG_REL" ] && [ -f "package/base-files/Makefile" ]; then
+        sed -i "s/PKG_RELEASE:=.*/PKG_RELEASE:=$PKG_REL/g" package/base-files/Makefile
+        echo "[+] Successfully patched package/base-files/Makefile PKG_RELEASE to $PKG_REL"
     fi
+
+    # 2. 劫持 scripts/getver.sh 输出波浪号后面的 Hash (f5dae5ece4)
+    if [ -n "$PKG_HASH" ]; then
+        cat << EOF > scripts/getver.sh
+#!/bin/sh
+echo "r0-$PKG_HASH"
+EOF
+        chmod +x scripts/getver.sh
+        echo "[+] Successfully hijacked scripts/getver.sh with Hash: $PKG_HASH"
+    fi
+else
+    echo "[-] Warning: Failed to fetch base-files version from $APK_URL"
 fi
