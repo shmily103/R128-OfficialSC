@@ -47,3 +47,26 @@ echo "$VERMAGIC" > .vermagic
 find build_dir/ -name ".vermagic" -exec sh -c 'echo "$1" > "$2"' _ "$VERMAGIC" {} \; 2>/dev/null || true
 
 echo "[+] Complete injection executed successfully."
+
+# 6. 解决 base-files 版本问题：抓取官方 version.buildinfo 并劫持版本号
+VERSION_URL="https://downloads.openwrt.org/releases/${OW_VER}/targets/${TARGET}/${SUBTARGET}/version.buildinfo"
+OFFICIAL_REV=$(curl -sL --connect-timeout 15 "$VERSION_URL" | tr -d '\r\n')
+
+if [ -n "$OFFICIAL_REV" ]; then
+    echo "[+] Successfully fetched Official Revision: $OFFICIAL_REV"
+    
+    # 劫持 getver.sh
+    cat << EOF > scripts/getver.sh
+#!/bin/sh
+echo "$OFFICIAL_REV"
+EOF
+    chmod +x scripts/getver.sh
+
+    # 提取 Revision 中的数字部分 (比如从 r1711-f5dae5ece4 提取出 1711)
+    # 强行修改 package/base-files/Makefile 里的 PKG_RELEASE，把默认的 1 改成官方数字
+    REV_NUM=$(echo "$OFFICIAL_REV" | grep -oE '[0-9]+' | head -n 1)
+    if [ -n "$REV_NUM" ] && [ -f "package/base-files/Makefile" ]; then
+        sed -i "s/PKG_RELEASE:=.*/PKG_RELEASE:=$REV_NUM/g" package/base-files/Makefile
+        echo "[+] Successfully patched package/base-files/Makefile PKG_RELEASE to $REV_NUM"
+    fi
+fi
