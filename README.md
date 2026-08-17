@@ -4,7 +4,7 @@
 
 在.github/workflows/R128-OfficialSC.yml文件中修改默认的参数配置：
 
-  WRT_THEME:                       # 默认 LucI 主题
+  WRT_THEME:                       # 默认 LucI 主题 \n
   WRT_NAME:                           # 主机名
   WRT_SSID:                           # 默认 Wi-Fi 名称
   WRT_WORD:                        # 默认 Wi-Fi 密码
