@@ -3674,8 +3674,8 @@ define Device/Zhao_7981R128
   DEVICE_DTS_DIR := ../dts
   SUPPORTED_DEVICES := Zhao,7981R128
 DEVICE_PACKAGES := \
-		kmod-mt7915e kmod-mt7981-firmware mt7981-wo-firmware \
-		-wpad-basic-mbedtls wpad-mesh-mbedtls \
+		# kmod-mt7915e kmod-mt7981-firmware mt7981-wo-firmware \
+		# -wpad-basic-mbedtls wpad-mesh-mbedtls \
 		kmod-usb2 kmod-usb3 kmod-usb-storage-uas kmod-usb-storage-extras \
 		kmod-fs-ext4 kmod-fs-vfat kmod-nls-utf8 e2fsprogs \
 		block-mount fdisk usbutils \
