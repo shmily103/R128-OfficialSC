@@ -1,59 +1,23 @@
---- a/target/linux/mediatek/image/filogic.mk
-+++ b/target/linux/mediatek/image/filogic.mk
-@@ -1,0 +1,28 @@
-+define Device/Zhao_7981R128
-+  DEVICE_VENDOR := ZHAO
-+  DEVICE_MODEL := 7981R128
-+  DEVICE_VARIANT := (Compiled by Panzy)
-+  DEVICE_DTS := mt7981b-Zhao-7981R128-mtkuboot
-+  DEVICE_DTS_DIR := ../dts
-+  SUPPORTED_DEVICES := Zhao,7981R128
-+  DEVICE_PACKAGES := \
-+		kmod-mt7915e kmod-mt7981-firmware mt7981-wo-firmware \
-+		-wpad-basic-mbedtls wpad-mesh-mbedtls \
-+		kmod-usb2 kmod-usb3 kmod-usb-storage-uas kmod-usb-storage-extras \
-+		kmod-fs-ext4 kmod-fs-vfat kmod-nls-utf8 e2fsprogs \
-+		block-mount fdisk usbutils \
-+		kmod-sfp kmod-i2c-gpio ethtool \
-+		-dnsmasq dnsmasq-full kmod-bonding kmod-vrf
-+  UBINIZE_OPTS := -E 5
-+  BLOCKSIZE := 128k
-+  PAGESIZE := 2048
-+  IMAGE_SIZE := 114688k
-+  KERNEL_IN_UBI := 1
-+  IMAGES += factory.bin
-+  IMAGE/factory.bin := append-ubi | check-size $$(IMAGE_SIZE)
-+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
-+endef
-+TARGET_DEVICES += Zhao_7981R128
---- a/target/linux/mediatek/filogic/base-files/etc/board.d/01_leds
-+++ b/target/linux/mediatek/filogic/base-files/etc/board.d/01_leds
-@@ -340,0 +341,7 @@
-+Zhao,7981R128)
-+	ucidef_set_led_netdev "lan" "LAN" "LAN" "lan2"
-+	ucidef_set_led_netdev "sfp" "SFP" "SFP" "eth1"
-+	ucidef_set_led_netdev "wlan2g" "WIFI2G" "WIFI2G" "ra0"
-+	ucidef_set_led_netdev "wlan5g" "WIFI5G" "WIFI5G" "rax0"
-+	;;
-+
---- a/target/linux/mediatek/filogic/base-files/etc/board.d/02_network
-+++ b/target/linux/mediatek/filogic/base-files/etc/board.d/02_network
-@@ -326,0 +327,6 @@
-+	Zhao,7981R128)
-+		lan_mac=$(mtd_get_mac_binary "Factory" 0x04)
-+		wan_mac=$(macaddr_add "$lan_mac" 1)
-+		label_mac=$lan_mac
-+		;;
-+
+diff --git a/package/boot/uboot-tools/uboot-envtools/files/mediatek_filogic b/package/boot/uboot-tools/uboot-envtools/files/mediatek_filogic
+index 6d02233f8b..642f31f1ff 100644
 --- a/package/boot/uboot-tools/uboot-envtools/files/mediatek_filogic
 +++ b/package/boot/uboot-tools/uboot-envtools/files/mediatek_filogic
-@@ -84,1 +84,2 @@
--\
-+\
+@@ -81,7 +81,8 @@ comfast,cf-wr632ax|\
+ edgecore,eap111|\
+ netgear,wax220|\
+ zbtlink,zbt-z8102ax|\
+-zbtlink,zbt-z8103ax)
++zbtlink,zbt-z8103ax|\
 +Zhao,7981R128)
+ 	ubootenv_add_uci_config "/dev/mtd1" "0x0" "0x20000" "0x20000"
+ 	;;
+ asus,rt-ax59u)
+diff --git a/target/linux/mediatek/dts/mt7981b-Zhao-7981R128-mtkuboot.dts b/target/linux/mediatek/dts/mt7981b-Zhao-7981R128-mtkuboot.dts
+new file mode 100644
+index 0000000000..686d315196
 --- /dev/null
 +++ b/target/linux/mediatek/dts/mt7981b-Zhao-7981R128-mtkuboot.dts
-@@ -0,0 +280 @@
+@@ -0,0 +1,339 @@
 +// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
 +
 +/dts-v1/;
@@ -87,7 +51,7 @@
 +
 +	gpio-keys {
 +		compatible = "gpio-keys";
-
++
 +		reset {
 +			label = "reset";
 +			linux,code = <KEY_RESTART>;
@@ -283,7 +247,7 @@
 +			compatible = "fixed-partitions";
 +			#address-cells = <1>;
 +			#size-cells = <1>;
-
++
 +			partition@0 {
 +				label = "BL2";
 +				reg = <0x0 0x100000>;
@@ -393,9 +357,105 @@
 +	mediatek,u3p-dis-msk = <0x0>;
 +	status = "okay";
 +};
+diff --git a/target/linux/mediatek/filogic/base-files/etc/board.d/01_leds b/target/linux/mediatek/filogic/base-files/etc/board.d/01_leds
+index bab74c2fa3..4b1b21a392 100644
+--- a/target/linux/mediatek/filogic/base-files/etc/board.d/01_leds
++++ b/target/linux/mediatek/filogic/base-files/etc/board.d/01_leds
+@@ -337,6 +337,12 @@ zbtlink,zbt-z8106ax-t)
+ 	ucidef_set_led_netdev "wan" "wan" "amber:wan" "eth1" "link tx rx"
+ 	ucidef_set_led_netdev "mobile" "mobile" "green:mobile" "wwan" "link tx rx"
+ 	;;
++Zhao,7981R128)
++	ucidef_set_led_netdev "lan" "LAN" "LAN" "lan2"
++	ucidef_set_led_netdev "sfp" "SFP" "SFP" "eth1"
++	ucidef_set_led_netdev "wlan2g" "WIFI2G" "WIFI2G" "ra0"
++	ucidef_set_led_netdev "wlan5g" "WIFI5G" "WIFI5G" "rax0"
++	;;
+ zyxel,ex5601-t0-stock|\
+ zyxel,ex5601-t0-ubootmod)
+ 	ucidef_set_led_netdev "lan1" "LAN1" "mdio-bus:05:green:lan" "lan1" "link tx rx"
+diff --git a/target/linux/mediatek/filogic/base-files/etc/board.d/02_network b/target/linux/mediatek/filogic/base-files/etc/board.d/02_network
+index 16f45f400d..f0cced091b 100644
+--- a/target/linux/mediatek/filogic/base-files/etc/board.d/02_network
++++ b/target/linux/mediatek/filogic/base-files/etc/board.d/02_network
+@@ -197,7 +197,8 @@ mediatek_setup_interfaces()
+ 	tplink,tl-xdr6086|\
+ 	wavlink,wl-wn551x3|\
+ 	wavlink,wl-wn586x3|\
+-	wavlink,wl-wn586x3b)
++	wavlink,wl-wn586x3b|\
++	Zhao,7981R128)
+ 		ucidef_set_interfaces_lan_wan "lan1 lan2" eth1
+ 		;;
+ 	tplink,archer-ax80-v1|\
+@@ -322,6 +323,11 @@ mediatek_setup_macs()
+ 	yuncore,ax835)
+ 		label_mac=$(mtd_get_mac_binary "Factory" 0x4)
+ 		;;
++	Zhao,7981R128)
++		lan_mac=$(mtd_get_mac_binary "Factory" 0x04)
++		wan_mac=$(macaddr_add "$lan_mac" 1)
++		label_mac=$lan_mac
++		;;
+ 	esac
+ 
+ 	[ -n "$lan_mac" ] && ucidef_set_interface_macaddr "lan" $lan_mac
+diff --git a/target/linux/mediatek/filogic/base-files/lib/upgrade/platform.sh b/target/linux/mediatek/filogic/base-files/lib/upgrade/platform.sh
+index 9293b3692e..0e712373bf 100644
 --- a/target/linux/mediatek/filogic/base-files/lib/upgrade/platform.sh
 +++ b/target/linux/mediatek/filogic/base-files/lib/upgrade/platform.sh
-@@ -358,1 +358,2 @@
--\
-+\
+@@ -191,7 +191,8 @@ platform_do_upgrade() {
+ 	cudy,wr3000p-v1|\
+ 	huasifei,wh3000-pro-nand|\
+ 	huasifei,wh3000r-nand|\
+-	jiorouter,ax6000-jidu6101)
++	jiorouter,ax6000-jidu6101|\
 +	Zhao,7981R128)
+ 		CI_UBIPART="ubi"
+ 		nand_do_upgrade "$1"
+ 		;;
+@@ -354,7 +355,8 @@ platform_check_image() {
+ 		;;
+ 	creatlentem,clt-r30b1|\
+ 	creatlentem,clt-r30b1-112m|\
+-	nradio,c8-668gl)
++	nradio,c8-668gl|\
++	Zhao,7981R128)
+ 		# tar magic `ustar`
+ 		magic="$(dd if="$1" bs=1 skip=257 count=5 2>/dev/null)"
+ 
+diff --git a/target/linux/mediatek/image/filogic.mk b/target/linux/mediatek/image/filogic.mk
+index 5ae0305f33..8e14758a4c 100644
+--- a/target/linux/mediatek/image/filogic.mk
++++ b/target/linux/mediatek/image/filogic.mk
+@@ -3665,3 +3665,29 @@ ifneq ($(CONFIG_TARGET_ROOTFS_INITRAMFS),)
+ endif
+ endef
+ TARGET_DEVICES += zyxel_wx5600-t0-ubootmod
++
++define Device/Zhao_7981R128
++  DEVICE_VENDOR := ZHAO
++  DEVICE_MODEL := 7981R128
++  DEVICE_VARIANT := (Compiled by Panzy)
++  DEVICE_DTS := mt7981b-Zhao-7981R128-mtkuboot
++  DEVICE_DTS_DIR := ../dts
++  SUPPORTED_DEVICES := Zhao,7981R128
++DEVICE_PACKAGES := \
++		kmod-mt7915e kmod-mt7981-firmware mt7981-wo-firmware \
++		-wpad-basic-mbedtls wpad-mesh-mbedtls \
++		kmod-usb2 kmod-usb3 kmod-usb-storage-uas kmod-usb-storage-extras \
++		kmod-fs-ext4 kmod-fs-vfat kmod-nls-utf8 e2fsprogs \
++		block-mount fdisk usbutils \
++		kmod-sfp kmod-i2c-gpio ethtool \
++		-dnsmasq dnsmasq-full kmod-bonding kmod-vrf
++  UBINIZE_OPTS := -E 5
++  BLOCKSIZE := 128k
++  PAGESIZE := 2048
++  IMAGE_SIZE := 114688k
++  KERNEL_IN_UBI := 1
++  IMAGES += factory.bin
++  IMAGE/factory.bin := append-ubi | check-size $$$$(IMAGE_SIZE)
++  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
++endef
++TARGET_DEVICES += Zhao_7981R128
+\ No newline at end of file
