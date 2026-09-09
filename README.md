@@ -11,4 +11,4 @@
 
 
 补丁的方法增加设备支持：
-curl -sSL https://raw.githubusercontent.com/shmily103/R128-OfficialSC/refs/heads/main/add-zhao-7981r128-support.patch | git apply
+<br> curl -sSL https://raw.githubusercontent.com/shmily103/R128-OfficialSC/refs/heads/main/add-zhao-7981r128-support.patch | git apply
