@@ -8,3 +8,7 @@
 <br>  WRT_SSID:  # 默认 Wi-Fi 名称
 <br>  WRT_WORD:  # 默认 Wi-Fi 密码
 <br>  WRT_IP:    # 默认后台登录 IP
+
+
+补丁的方法增加设备支持：
+curl -sSL https://raw.githubusercontent.com/shmily103/R128-OfficialSC/refs/heads/main/add-zhao-7981r128-support.patch | git apply
