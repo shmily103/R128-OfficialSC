@@ -82,3 +82,23 @@ EOF
 else
     echo "[-] Warning: Failed to fetch base-files version from $APK_URL"
 fi
+
+# =========================================================
+# 7. 自动解析并注入官方 kmods 完整软件源 URL
+# =========================================================
+echo "[+] Fetching official kmods full path from: $URL"
+
+# 抓取包含内核版本与完整 Hash 的子目录路径 (如 6.12.94-1-5a6c1f71be683ae9980b15d3ce73e24d/)
+KMOD_DIR=$(curl -sL --connect-timeout 15 "$URL" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+-[0-9]+-[a-f0-9]{32}' | head -n 1)
+
+if [ -n "$KMOD_DIR" ]; then
+    FULL_KMOD_URL="${URL}${KMOD_DIR}/packages.adb"
+    echo "[+] Found Official Kmods URL: $FULL_KMOD_URL"
+
+    # 将配置文件注入到打包目录 files/etc/apk/repositories.d/ 中
+    mkdir -p files/etc/apk/repositories.d/
+    echo "$FULL_KMOD_URL" >> files/etc/apk/repositories.d/distfeeds.list
+    echo "[+] Successfully injected kmods repo URL into files/etc/apk/repositories.d/distfeeds.list"
+else
+    echo "[-] Warning: Failed to fetch official kmods directory from $URL"
+fi
