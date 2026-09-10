@@ -102,3 +102,24 @@ if [ -n "$KMOD_DIR" ]; then
 else
     echo "[-] Warning: Failed to fetch official kmods directory from $URL"
 fi
+
+# =========================================================
+# 8. 强制开启 Docker 自动防火墙规则所需的内核 Netfilter 选项
+# =========================================================
+if [ -f ".config" ]; then
+    echo "[+] Enforcing kernel Netfilter & REJECT configs in .config..."
+    
+    # 开启 nftables REJECT 模块支持
+    echo "CONFIG_PACKAGE_kmod-nft-core=y" >> .config
+    echo "CONFIG_PACKAGE_kmod-nft-nat=y" >> .config
+    echo "CONFIG_NFT_REJECT=y" >> .config
+    echo "CONFIG_NFT_REJECT_IPV4=y" >> .config
+    echo "CONFIG_NFT_REJECT_IPV6=y" >> .config
+    
+    # 开启传统的 iptables 兼容层（避免传统调用失败）
+    echo "CONFIG_PACKAGE_kmod-ipt-core=y" >> .config
+    echo "CONFIG_PACKAGE_kmod-ipt-extra=y" >> .config
+    echo "CONFIG_PACKAGE_kmod-ipt-nat=y" >> .config
+    echo "CONFIG_IP_NF_FILTER=y" >> .config
+    echo "CONFIG_IP_NF_TARGET_REJECT=y" >> .config
+fi
