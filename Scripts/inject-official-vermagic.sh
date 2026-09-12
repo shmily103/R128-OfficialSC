@@ -86,26 +86,25 @@ fi
 # =========================================================
 # 7. 自动解析并注入官方 kmods 完整软件源 URL
 # =========================================================
+# 规范化 URL 结尾，确保包含 '/'
+URL="${URL%/}/"
+
 echo "[+] Fetching official kmods full path from: $URL"
 
 # 抓取包含内核版本与完整 Hash 的子目录路径
 KMOD_DIR=$(curl -sL --connect-timeout 15 "$URL" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+-[0-9]+-[a-f0-9]{32}' | head -n 1)
 
 if [ -n "$KMOD_DIR" ]; then
-    # 拼接完整路径
+    # 拼接完整路径（适配 OpenWrt 25.xx APK 格式）
     FULL_KMOD_URL="${URL}${KMOD_DIR}/packages.adb"
     echo "[+] Found Official Kmods URL: $FULL_KMOD_URL"
 
     # 创建目标目录
     mkdir -p files/etc/apk/repositories.d/
 
-
-    # 写入 custom.list，确保不会因为自动追加架构后缀导致 404
-    echo "$FULL_KMOD_URL" > files/etc/apk/repositories.d/custom.list
+    # 使用 >> (追加) 写入 custom.list，避免覆盖默认源，同时注入正确的 kmods 地址
+    echo "$FULL_KMOD_URL" >> files/etc/apk/repositories.d/custom.list
     echo "[+] Successfully injected kmods repo URL into files/etc/apk/repositories.d/custom.list"
-
-
-
 else
     echo "[-] Warning: Failed to fetch official kmods directory from $URL"
 fi
