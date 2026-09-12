@@ -103,8 +103,8 @@ if [ -n "$KMOD_DIR" ]; then
     mkdir -p files/etc/apk/repositories.d/
 
     # 使用 >> (追加) 写入 custom.list，避免覆盖默认源，同时注入正确的 kmods 地址
-    echo "$FULL_KMOD_URL" >> files/etc/apk/repositories.d/custom.list
-    echo "[+] Successfully injected kmods repo URL into files/etc/apk/repositories.d/custom.list"
+    echo "$FULL_KMOD_URL" >> files/etc/apk/repositories.d/customfeeds.list
+    echo "[+] Successfully injected kmods repo URL into files/etc/apk/repositories.d/customfeeds.list"
 else
     echo "[-] Warning: Failed to fetch official kmods directory from $URL"
 fi
