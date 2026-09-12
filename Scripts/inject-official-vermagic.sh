@@ -84,24 +84,28 @@ else
 fi
 
 # =========================================================
-# 7. 自动解析并注入官方 kmods 完整软件源 URL
+# 自动解析并注入官方 kmods 完整软件源 URL 到 customfeeds.list
 # =========================================================
-echo "[+] Fetching official kmods full path from: $URL"
+echo "[+] Resolving kmods repository URL..."
 
-# 抓取包含内核版本与完整 Hash 的子目录路径
+# 1. 抓取包含内核版本与完整 Hash 的子目录路径
 KMOD_DIR=$(curl -sL --connect-timeout 15 "$URL" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+-[0-9]+-[a-f0-9]{32}' | head -n 1)
 
 if [ -n "$KMOD_DIR" ]; then
-    # 拼接完整路径
+    # 2. 拼接完整路径（必须精确携带 /packages.adb 结尾以防止 apk 补全架构目录）
     FULL_KMOD_URL="${URL}${KMOD_DIR}/packages.adb"
-    echo "[+] Found Official Kmods URL: $FULL_KMOD_URL"
+    echo "[+] Found Valid Official Kmods URL: $FULL_KMOD_URL"
 
-    # 创建目标目录
+    # 3. 创建目标目录并注入 customfeeds.list
     mkdir -p files/etc/apk/repositories.d/
+    echo "$FULL_KMOD_URL" > files/etc/apk/repositories.d/customfeeds.list
 
-    # 写入 custom.list，确保不会因为自动追加架构后缀导致 404
-    echo "$FULL_KMOD_URL" > files/etc/apk/repositories.d/custom.list
-    echo "[+] Successfully injected kmods repo URL into files/etc/apk/repositories.d/custom.list"
+    # 4. 清理默认 distfeeds.list，防止重复注入或格式冲突
+    if [ -f files/etc/apk/repositories.d/distfeeds.list ]; then
+        sed -i '/kmods/d' files/etc/apk/repositories.d/distfeeds.list
+    fi
+
+    echo "[+] Successfully injected kmods repo URL into files/etc/apk/repositories.d/customfeeds.list"
 else
     echo "[-] Warning: Failed to fetch official kmods directory from $URL"
 fi
