@@ -88,11 +88,10 @@ fi
 # =========================================================
 echo "[+] Fetching official kmods full path from: $URL"
 
-# 提取内核版本与 Hash 路径（原封不动保留你的正则提取逻辑）
+# 提取内核版本与 Hash 路径
 KMOD_DIR=$(curl -sL --connect-timeout 15 "$URL" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+-[0-9]+-[a-f0-9]{32}' | head -n 1)
 
 if [ -n "$KMOD_DIR" ]; then
-    # 完全保留你验证正确的带 packages.adb 完整路径
     FULL_KMOD_URL="${URL}${KMOD_DIR}/packages.adb"
     echo "[+] Found Official Kmods URL: $FULL_KMOD_URL"
 
