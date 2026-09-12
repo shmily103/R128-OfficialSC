@@ -84,28 +84,24 @@ else
 fi
 
 # =========================================================
-# 7. 自动解析并注入官方 kmods 完整软件源 URL (精准正则匹配版)
+# 7. 自动解析并注入官方 kmods 完整软件源 URL
 # =========================================================
 echo "[+] Fetching official kmods full path from: $URL"
 
-# 1. 确保传入的 URL 格式正确，指向 kmods 根目录（例如 https://downloads.openwrt.org/releases/25.12.5/targets/mediatek/filogic/kmods/）
-[[ "$URL" != */ ]] && URL="${URL}/"
-[[ "$URL" != *kmods/ ]] && URL="${URL}kmods/"
-
-# 2. 从 HTML 中精准提取带 kmods/ 前缀的内核 Hash 目录
-# 匹配格式如: kmods/6.12.94-1-5a6c1f71be683ae9980b15d3ce73e24d/
-KMOD_DIR=$(curl -sL --connect-timeout 15 "$URL" | grep -oE 'kmods/[0-9]+\.[0-9]+\.[0-9]+-[0-9]+-[a-f0-9]{32}' | head -n 1 | sed 's|^kmods/||')
+# 提取内核版本与 Hash 路径（原封不动保留你的正则提取逻辑）
+KMOD_DIR=$(curl -sL --connect-timeout 15 "$URL" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+-[0-9]+-[a-f0-9]{32}' | head -n 1)
 
 if [ -n "$KMOD_DIR" ]; then
-    # 拼接出符合 apk 规范的目录 URL (不带 packages.adb)
-    FULL_KMOD_URL="${URL}${KMOD_DIR}"
+    # 完全保留你验证正确的带 packages.adb 完整路径
+    FULL_KMOD_URL="${URL}${KMOD_DIR}/packages.adb"
     echo "[+] Found Official Kmods URL: $FULL_KMOD_URL"
 
-    # 写入独立的 custom.list，避免覆盖默认 distfeeds.list
+    # 创建目标目录
     mkdir -p files/etc/apk/repositories.d/
+
+    # 仅修改写入位置：存入 custom.list，防止覆盖系统的 base/packages/luci 等默认源
     echo "$FULL_KMOD_URL" > files/etc/apk/repositories.d/custom.list
-    
-    echo "[+] Successfully written to files/etc/apk/repositories.d/custom.list"
+    echo "[+] Successfully injected kmods repo URL into files/etc/apk/repositories.d/custom.list"
 else
     echo "[-] Warning: Failed to fetch official kmods directory from $URL"
 fi
