@@ -84,27 +84,30 @@ else
 fi
 
 # =========================================================
-# 7. 自动解析并注入官方 kmods 完整软件源 URL
+# 7. 自动解析并在编译期精准追加 kmods URL 到 distfeeds.list
 # =========================================================
-# 规范化 URL 结尾，确保包含 '/'
 URL="${URL%/}/"
 
 echo "[+] Fetching official kmods full path from: $URL"
 
-# 抓取包含内核版本与完整 Hash 的子目录路径
 KMOD_DIR=$(curl -sL --connect-timeout 15 "$URL" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+-[0-9]+-[a-f0-9]{32}' | head -n 1)
 
 if [ -n "$KMOD_DIR" ]; then
-    # 拼接完整路径（适配 OpenWrt 25.xx APK 格式）
     FULL_KMOD_URL="${URL}${KMOD_DIR}/packages.adb"
     echo "[+] Found Official Kmods URL: $FULL_KMOD_URL"
 
-    # 创建目标目录
-    mkdir -p files/etc/apk/repositories.d/
-
-    # 使用 >> (追加) 写入 custom.list，避免覆盖默认源，同时注入正确的 kmods 地址
-    echo "$FULL_KMOD_URL" >> files/etc/apk/repositories.d/customfeeds.list
-    echo "[+] Successfully injected kmods repo URL into files/etc/apk/repositories.d/customfeeds.list"
+    # 精准修改 package/base-files/Makefile
+    MK_FILE="package/base-files/Makefile"
+    if [ -f "$MK_FILE" ]; then
+        # 寻找 distfeeds.list 生成完成的那一行，在下方插入追加语句
+        # 注意：Makefile 中行首必须是 \t (Tab键)，且字符串需转义
+        sed -i "/repositories.d\/distfeeds.list/a \\\techo \"$FULL_KMOD_URL\" >> \$(1)\/etc\/apk\/repositories.d\/distfeeds.list" "$MK_FILE"
+        
+        echo "[+] Successfully patched $MK_FILE (Injected directly after FeedSourcesAppendAPK)"
+    else
+        echo "[-] Error: $MK_FILE not found!"
+        exit 1
+    fi
 else
     echo "[-] Warning: Failed to fetch official kmods directory from $URL"
 fi
