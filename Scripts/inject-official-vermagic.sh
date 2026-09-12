@@ -88,17 +88,18 @@ fi
 # =========================================================
 echo "[+] Fetching official kmods full path from: $URL"
 
-# 提取内核版本与 Hash 路径
+# 抓取包含内核版本与完整 Hash 的子目录路径
 KMOD_DIR=$(curl -sL --connect-timeout 15 "$URL" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+-[0-9]+-[a-f0-9]{32}' | head -n 1)
 
 if [ -n "$KMOD_DIR" ]; then
+    # 拼接完整路径
     FULL_KMOD_URL="${URL}${KMOD_DIR}/packages.adb"
     echo "[+] Found Official Kmods URL: $FULL_KMOD_URL"
 
     # 创建目标目录
     mkdir -p files/etc/apk/repositories.d/
 
-    # 仅修改写入位置：存入 custom.list，防止覆盖系统的 base/packages/luci 等默认源
+    # 写入 custom.list，确保不会因为自动追加架构后缀导致 404
     echo "$FULL_KMOD_URL" > files/etc/apk/repositories.d/custom.list
     echo "[+] Successfully injected kmods repo URL into files/etc/apk/repositories.d/custom.list"
 else
