@@ -96,14 +96,16 @@ if [ -n "$KMOD_DIR" ]; then
     FULL_KMOD_URL="${URL}${KMOD_DIR}/packages.adb"
     echo "[+] Found Official Kmods URL: $FULL_KMOD_URL"
 
-    # 精准修改 package/base-files/Makefile
     MK_FILE="package/base-files/Makefile"
     if [ -f "$MK_FILE" ]; then
-        # 寻找 distfeeds.list 生成完成的那一行，在下方插入追加语句
-        # 注意：Makefile 中行首必须是 \t (Tab键)，且字符串需转义
-        sed -i "/repositories.d\/distfeeds.list/a \\\techo \"$FULL_KMOD_URL\" >> \$(1)\/etc\/apk\/repositories.d\/distfeeds.list" "$MK_FILE"
+        # 1. 锁定完全唯一的整行匹配条件 (VERSION_SED_SCRIPT 那一行)
+        # 2. 在插入前先清理可能已经存在的相同指令，防止重复执行脚本导致累加
+        sed -i "/echo \"$FULL_KMOD_URL\" >>/d" "$MK_FILE"
         
-        echo "[+] Successfully patched $MK_FILE (Injected directly after FeedSourcesAppendAPK)"
+        # 精准在 VERSION_SED_SCRIPT 下方插入且仅插入一次
+        sed -i "/VERSION_SED_SCRIPT.*distfeeds\.list/a \\\techo \"$FULL_KMOD_URL\" >> \$(1)\/etc\/apk\/repositories.d\/distfeeds.list" "$MK_FILE"
+        
+        echo "[+] Successfully patched $MK_FILE (Single injection guaranteed)"
     else
         echo "[-] Error: $MK_FILE not found!"
         exit 1
