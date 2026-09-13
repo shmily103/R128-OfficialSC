@@ -98,12 +98,11 @@ if [ -n "$KMOD_DIR" ]; then
 
     MK_FILE="package/base-files/Makefile"
     if [ -f "$MK_FILE" ]; then
-        # 1. 锁定完全唯一的整行匹配条件 (VERSION_SED_SCRIPT 那一行)
-        # 2. 在插入前先清理可能已经存在的相同指令，防止重复执行脚本导致累加
-        sed -i "/echo \"$FULL_KMOD_URL\" >>/d" "$MK_FILE"
+        # 1. 幂等清理：防止重复执行导致累加
+        sed -i '|echo ".*packages\.adb" >>|d' "$MK_FILE"
         
-        # 精准在 VERSION_SED_SCRIPT 下方插入且仅插入一次
-        sed -i "/VERSION_SED_SCRIPT.*distfeeds\.list/a \\\techo \"$FULL_KMOD_URL\" >> \$(1)\/etc\/apk\/repositories.d\/distfeeds.list" "$MK_FILE"
+        # 2. 改用 '#' 作为 sed 的分隔符，避开 URL 中的 '/' 字符
+        sed -i "#VERSION_SED_SCRIPT.*distfeeds\.list#a \\\techo \"$FULL_KMOD_URL\" >> \$(1)/etc/apk/repositories.d/distfeeds.list" "$MK_FILE"
         
         echo "[+] Successfully patched $MK_FILE (Single injection guaranteed)"
     else
