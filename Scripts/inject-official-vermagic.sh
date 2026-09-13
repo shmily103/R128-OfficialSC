@@ -98,11 +98,14 @@ if [ -n "$KMOD_DIR" ]; then
 
     MK_FILE="package/base-files/Makefile"
     if [ -f "$MK_FILE" ]; then
-        # 1. 幂等清理：防止重复执行导致累加
-        sed -i '|echo ".*packages\.adb" >>|d' "$MK_FILE"
+        # 1. 幂等清理：删掉 Makefile 里可能残留的包含 packages.adb 的历史注入行（使用标准斜杠匹配）
+        sed -i '/packages\.adb/d' "$MK_FILE"
         
-        # 2. 改用 '#' 作为 sed 的分隔符，避开 URL 中的 '/' 字符
-        sed -i "#VERSION_SED_SCRIPT.*distfeeds\.list#a \\\techo \"$FULL_KMOD_URL\" >> \$(1)/etc/apk/repositories.d/distfeeds.list" "$MK_FILE"
+        # 2. 对包含斜杠的 URL 进行安全转义，以便在 sed 中使用
+        ESC_URL=$(echo "$FULL_KMOD_URL" | sed 's/\//\\\//g')
+
+        # 3. 使用标准的 /pattern/a 语法精准插入一行
+        sed -i "/VERSION_SED_SCRIPT.*distfeeds\.list/a \\\techo \"$ESC_URL\" >> \$(1)\/etc\/apk\/repositories.d\/distfeeds.list" "$MK_FILE"
         
         echo "[+] Successfully patched $MK_FILE (Single injection guaranteed)"
     else
