@@ -3687,7 +3687,7 @@ DEVICE_PACKAGES := \
   IMAGE_SIZE := 114688k
   KERNEL_IN_UBI := 1
   IMAGES += factory.bin
-  IMAGE/factory.bin := append-ubi | check-size $$$$(IMAGE_SIZE)
+  IMAGE/factory.bin := append-ubi | append-metadata | check-size $$$$(IMAGE_SIZE)
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
 endef
 TARGET_DEVICES += Zhao_7981R128
