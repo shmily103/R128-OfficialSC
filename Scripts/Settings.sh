@@ -68,7 +68,7 @@ config global
 	option anon_mount '1'
 	option auto_swap '1'
 	option auto_mount '1'
-	option delay_root '5'
+	option delay_root '10'
 	option check_fs '0'
 EOF
 
