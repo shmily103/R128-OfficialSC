@@ -74,7 +74,7 @@ jobs:
       matrix:
         CONFIG: [R128-OfficialSC] # 目标配置文件名
         REPO_INFO:
-          - {SOURCE: "openwrt/openwrt", BRANCH: "v25.12.5"} # 源码仓库及目标分支
+          - {SOURCE: "openwrt/openwrt", BRANCH: "v25.12.6"} # 源码仓库及目标分支
 
     # 局部环境变量：从矩阵策略中动态注入
     env:
