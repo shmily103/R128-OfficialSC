@@ -70,6 +70,11 @@ config global
 	option auto_mount '1'
 	option delay_root '10'
 	option check_fs '0'
+
+config mount
+        option enabled '1'
+        option uuid '88ca2d22-7066-47dc-aa6f-b9dc12e4a132'
+        option target '/overlay'
 EOF
 
 # 手动调整的插件
