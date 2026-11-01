@@ -73,7 +73,7 @@ config global
 
 config mount
         option enabled '1'
-        option uuid '88ca2d22-7066-47dc-aa6f-b9dc12e4a132'
+        option uuid '93b905bd-57f7-45df-8e25-bed6756ccb32'
         option target '/overlay'
 EOF
 
